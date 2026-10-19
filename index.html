@@ -192,28 +192,60 @@ body.offline .pill-off{display:inline-flex}
 
 .ean-err{color:var(--err);font-weight:600}
 
-/* ---------- Bon de commande ---------- */
-.bon-feuille{background:#fff;color:#000;border:1px solid var(--line);border-radius:4px;padding:24px 16px;margin-top:16px}
-.bon-ent{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;border-bottom:3px solid #000;padding-bottom:12px;margin-bottom:4px}
-.bon-feuille .display{color:#000;font-size:clamp(32px,9vw,44px)}
-.bon-meta{font-size:14px;line-height:1.4;text-align:right;color:#404040}
-.bon-club{font-family:var(--f-cond);font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#000;margin:0 0 4px}
-.ligne-bon{display:grid;grid-template-columns:1fr auto;grid-template-areas:"nom qte" "cb cb";gap:8px 16px;align-items:center;padding:12px 0;border-bottom:1px solid #C0C0C0;break-inside:avoid}
-.ligne-bon .l-nom{grid-area:nom;color:#000}
-.ligne-bon .qte{grid-area:qte;font-family:var(--f-cond);font-weight:700;font-size:32px;line-height:1;white-space:nowrap;color:#000}
-.ligne-bon .cb-zone{grid-area:cb}
+/* ---------- Bon de commande (charte VSF v3, document administratif) ---------- */
+.bon-feuille{background:#fff;color:#404040;border:1px solid var(--line);border-radius:8px;padding:24px 16px;margin-top:16px;font-size:14px;line-height:1.5}
+@media screen{.bon-cadre,.bon-cadre>tbody,.bon-cadre>tbody>tr,.bon-cadre>tbody>tr>td{display:block}.bon-cadre>thead,.bon-cadre>tfoot{display:none}}
+.bon-ent{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.bon-logo{height:56px;width:auto;display:block}
+.bon-meta{text-align:right;font-size:14px;line-height:1.5;color:#404040}
+.bon-meta .etiq{display:block;color:#0E0E0E;font-size:16px}
+.bon-feuille .filet{margin:24px 0 16px}
+.bon-feuille h1.display{color:#0E0E0E;font-size:clamp(32px,9vw,44px)}
+.bon-infos{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:stretch;margin:24px 0}
+.bon-encadre{border-left:4px solid #C00000;background:#F5F5F5;padding:12px 16px;color:#404040}
+.bon-encadre .etiq{display:block;color:#C00000;margin-bottom:4px}
+.bon-encadre b{color:#0E0E0E}
+.bon-hex{width:84px;height:84px;background:#C00000;color:#fff;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;flex-direction:column;align-items:center;justify-content:center;align-self:center;text-align:center}
+.bon-hex b{font-family:var(--f-cond);font-weight:700;font-size:28px;line-height:1}
+.bon-hex span{font-family:var(--f-cond);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.bon-lignes{width:100%;border-collapse:collapse}
+.bon-lignes th{background:#C00000;color:#fff;font-family:var(--f-cond);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:8px 12px}
+.bon-lignes th.d,.bon-lignes td.d{text-align:right}
+.bon-lignes td{padding:10px 12px;vertical-align:middle;border-bottom:1px solid #E0E0E0}
+.bon-lignes .n{font-family:var(--f-cond);font-weight:700;color:#777;width:36px}
+.bon-lignes .l-nom{color:#0E0E0E;font-size:15px}
+.bon-lignes .qte{font-family:var(--f-cond);font-weight:700;font-size:28px;line-height:1;white-space:nowrap;color:#0E0E0E}
+.bon-total{display:flex;justify-content:flex-end;gap:16px;padding:12px;font-family:var(--f-cond);font-weight:700;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:#0E0E0E;border-top:2px solid #0E0E0E}
+.bon-sign{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px;break-inside:avoid}
+.bon-sign>div{border:1px solid #C0C0C0;border-radius:4px;min-height:110px;padding:8px 12px}
+.bon-sign .etiq{color:#404040}
+.bon-pied{display:flex;justify-content:space-between;gap:16px;margin-top:24px;padding-top:8px;border-top:1px solid #E0E0E0;font-size:13px;color:#777}
 .cb{display:block;width:min(100%,300px);height:64px;background:#fff}
-.cb-num{display:block;font-family:'JetBrains Mono','Courier New',monospace;font-size:14px;letter-spacing:.12em;color:#000;margin-top:2px}
-.cb-vide{font-size:14px;font-weight:600;color:#7A1720;border:1px dashed #7A1720;padding:8px 12px;border-radius:4px;display:inline-block}
+.cb-num{display:block;font-family:'JetBrains Mono','Courier New',monospace;font-size:13px;letter-spacing:.12em;color:#0E0E0E;margin-top:2px}
+.cb-vide{font-size:13px;font-weight:600;color:#7A1720;border:1px dashed #7A1720;padding:6px 10px;border-radius:4px;display:inline-block}
+@media screen and (max-width:640px){
+  .bon-lignes thead{display:none}
+  .bon-lignes,.bon-lignes tbody{display:block}
+  .bon-lignes tr.ligne-bon{display:grid;grid-template-columns:28px 1fr auto;grid-template-areas:"n nom qte" ". cb cb";gap:4px 8px;padding:10px 8px;border-bottom:1px solid #E0E0E0}
+  .bon-lignes td{display:block;padding:0;border:0}
+  .bon-lignes td.n{grid-area:n}.bon-lignes td.nom{grid-area:nom}.bon-lignes td.d{grid-area:qte}.bon-lignes td.cbz{grid-area:cb}
+  .bon-sign{grid-template-columns:1fr}
+}
 @media print{
-  @page{size:A4;margin:12mm}
-  html,body{background:#fff!important;color:#000!important;font-size:12pt}
+  @page{size:A4;margin:0}
+  html,body{background:#fff!important;color:#000!important;font-size:11pt}
   .top,.onglets,.no-print,.barre,#bandeau-envois,.toast,.voile{display:none!important}
   .page{max-width:none;padding:0}
-  .bon-feuille{border:0;padding:0;margin:0}
-  .ligne-bon{grid-template-columns:1fr 64mm 20mm;grid-template-areas:"nom cb qte";padding:3mm 0}
-  .cb{width:60mm;height:15mm}
-  .ligne-bon .qte{text-align:right}
+  .bon-feuille{border:0;border-radius:0;padding:0;margin:0}
+  table.bon-cadre{width:100%;border-collapse:collapse}
+  .bon-cadre>thead>tr>td>.esp{height:12mm}
+  .bon-cadre>tfoot>tr>td>.esp{height:22mm}
+  .bon-cadre>tbody>tr>td{padding:0 12mm}
+  .bon-logo{height:18mm}
+  .bon-lignes tr{break-inside:avoid}
+  .bon-lignes td{padding:3mm 3mm}
+  .cb{width:58mm;height:15mm}
+  .bon-pied{position:fixed;left:12mm;right:12mm;bottom:8mm;margin:0}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
@@ -939,19 +971,41 @@ async function viewBon(id) {
       horsLigne ? message('warn', 'Hors ligne : liste enregistrée sur ce téléphone, peut-être pas à jour.') : null,
       sans ? message('warn', plur(sans, 'article sans EAN valide', 'articles sans EAN valide') + ' : pas de code-barres sur le bon (le libellé reste imprimé). Corriger dans l\'onglet Articles du Sheet, puis rouvrir cette page.') : null,
       lignes.length ? el('p', { class: 'petit soft', style: 'margin:0' }, 'Aperçu du bon. « Imprimer » permet aussi d\'enregistrer en PDF.') : null].filter(Boolean));
-    feuille.replaceChildren(el('section', { class: 'bon-feuille', 'aria-label': 'Bon de commande' },
-      el('div', { class: 'bon-ent' },
-        el('div', {}, el('p', { class: 'bon-club', text: 'VSF Football · sacs pharmacie' }), el('h1', { class: 'display', text: 'Bon de commande' })),
-        el('div', { class: 'bon-meta' }, el('div', { text: nomListe(id) }), el('div', { text: 'Édité le ' + new Date().toLocaleDateString('fr-FR') }),
-          el('div', { text: plur(lignes.length, 'article', 'articles') + ' · ' + plur(unites, 'unité', 'unités') }))),
+    const auj = new Date(), an = auj.getFullYear(), saison = auj.getMonth() >= 6 ? an + '-' + (an + 1) : (an - 1) + '-' + an;
+    const logo = el('img', { class: 'bon-logo', src: 'assets/vsf-logo.png', alt: 'VSF Football' });
+    logo.addEventListener('error', () => logo.replaceWith(el('span', { class: 'logo-txt', text: 'VSF Football' })));
+    const corps = el('div', {},
+      el('div', { class: 'bon-ent' }, logo,
+        el('div', { class: 'bon-meta' }, el('span', { class: 'etiq', text: nomListe(id) }), el('div', { text: 'Édité le ' + auj.toLocaleDateString('fr-FR') }))),
+      el('div', { class: 'filet' }), el('h1', { class: 'display', text: 'Bon de commande' }),
+      el('div', { class: 'bon-infos' },
+        el('div', { class: 'bon-encadre' }, el('span', { class: 'etiq', text: 'Émetteur' }),
+          el('div', {}, el('b', { text: 'VSF Football' }), ' · La Ferté-Bernard'),
+          el('div', { text: 'Sacs pharmacie du club' }),
+          session && session.nom ? el('div', { text: 'Émis par : ' + session.nom }) : null),
+        el('div', { class: 'bon-hex', role: 'img', 'aria-label': plur(unites, 'unité', 'unités') + ' à commander' }, el('b', { text: String(unites) }), el('span', { text: unites > 1 ? 'unités' : 'unité' }))),
       lignes.length
-        ? el('ul', { class: 'lignes', style: 'gap:0' }, lignes.map(({ a, info }) => el('li', { class: 'ligne-bon' },
-            el('span', { class: 'l-nom', text: a.libelle }),
-            el('span', { class: 'qte', 'aria-label': 'Quantité ' + a.quantite_totale, text: '×' + a.quantite_totale }),
-            el('div', { class: 'cb-zone' }, info.statut === 'ok'
-              ? [codeBarres(info.ean), el('span', { class: 'cb-num', text: info.ean })]
-              : el('span', { class: 'cb-vide', text: info.statut === 'invalide' ? 'EAN invalide : ' + info.brut : 'Pas de code-barres (EAN à renseigner)' })))))
-        : el('p', { style: 'margin:16px 0', text: 'Liste vide : rien à commander.' })));
+        ? [el('table', { class: 'bon-lignes' },
+            el('thead', {}, el('tr', {}, el('th', { scope: 'col', text: 'N°' }), el('th', { scope: 'col', text: 'Désignation' }), el('th', { scope: 'col', text: 'Code-barres EAN' }), el('th', { scope: 'col', class: 'd', text: 'Qté' }))),
+            el('tbody', {}, lignes.map(({ a, info }, k) => el('tr', { class: 'ligne-bon' },
+              el('td', { class: 'n', text: String(k + 1) }),
+              el('td', { class: 'nom' }, el('span', { class: 'l-nom', text: a.libelle })),
+              el('td', { class: 'cbz' }, info.statut === 'ok'
+                ? [codeBarres(info.ean), el('span', { class: 'cb-num', text: info.ean })]
+                : el('span', { class: 'cb-vide', text: info.statut === 'invalide' ? 'EAN invalide : ' + info.brut : 'Pas de code-barres (EAN à renseigner)' })),
+              el('td', { class: 'd' }, el('span', { class: 'qte', 'aria-label': 'Quantité ' + a.quantite_totale, text: '×' + a.quantite_totale }))))),
+          ),
+          el('div', { class: 'bon-total' }, el('span', { text: plur(lignes.length, 'article', 'articles') }), el('span', { text: 'Total : ' + plur(unites, 'unité', 'unités') }))]
+        : el('p', { style: 'margin:16px 0', text: 'Liste vide : rien à commander.' }),
+      el('div', { class: 'bon-sign' },
+        el('div', {}, el('span', { class: 'etiq', text: 'Émetteur : date et signature' })),
+        el('div', {}, el('span', { class: 'etiq', text: 'Pharmacie : date, signature et cachet' }))),
+      el('div', { class: 'bon-pied' }, el('span', { text: 'VSF Football · La Ferté-Bernard · Saison ' + saison }), el('span', { text: 'Bon de commande · ' + nomListe(id) })));
+    const cadre = el('table', { class: 'bon-cadre' },
+      el('thead', {}, el('tr', {}, el('td', {}, el('div', { class: 'esp' })))),
+      el('tbody', {}, el('tr', {}, el('td', {}, corps))),
+      el('tfoot', {}, el('tr', {}, el('td', {}, el('div', { class: 'esp' })))));
+    feuille.replaceChildren(el('section', { class: 'bon-feuille', 'aria-label': 'Bon de commande' }, cadre));
     barre.replaceChildren(el('div', { class: 'barre-in' },
       el('div', { class: 'resume' }, plur(lignes.length, 'article', 'articles'), el('small', { text: plur(unites, 'unité', 'unités') })),
       el('button', { class: 'btn primaire', type: 'button', 'aria-disabled': String(!lignes.length), onclick: () => { if (lignes.length) window.print(); } }, ico('print'), 'Imprimer / PDF')));
