@@ -249,6 +249,27 @@ body.offline .pill-off{display:inline-flex}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
+
+/* ---------- Trousses types ---------- */
+.cat-ligne{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.cat-ligne label{font-family:var(--f-cond);font-weight:700;font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+.cat-ligne select{width:100%;min-height:48px;padding:12px;background:var(--surface);color:var(--text);border:1px solid var(--field-line);border-radius:4px}
+.cat-ligne select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(192,0,0,.15)}
+.t-ligne{display:grid;grid-template-columns:44px 1fr;gap:4px 8px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:8px;position:relative}
+.t-ligne.inactif{background:var(--warn-bg)}
+.t-ligne .grip{grid-row:1 / span 2;touch-action:none;cursor:grab;align-self:center}
+.t-ligne .t-nom{display:block;font-weight:600;font-size:16px;line-height:1.3;padding-top:8px}
+.t-ligne .t-ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:2px}
+.t-ligne .t-ctrl .sp{flex:1;min-width:4px}
+.t-ligne .l-val{min-width:32px}
+.t-ligne.glisse{z-index:4;box-shadow:var(--shadow-4);background:var(--raised);border-color:var(--accent)}
+.t-ligne.glisse .grip{cursor:grabbing}
+.sbtn .ico.haut{transform:rotate(180deg)}
+.sbtn.danger{color:var(--err);border-color:var(--err)}
+.liste-ajout{list-style:none;margin:16px 0;padding:0;display:grid;gap:8px;max-height:50vh;overflow:auto}
+.liste-ajout li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.feuille .champ select,.feuille .champ input{width:100%;min-height:48px;padding:12px;background:var(--surface);color:var(--text);border:1px solid var(--field-line);border-radius:4px}
+
 @media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.carte:hover,.btn.primaire:hover{transform:none}}
 </style>
 </head>
@@ -265,7 +286,9 @@ body.offline .pill-off{display:inline-flex}
   <symbol id="vsf-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"></path></symbol>
   <symbol id="vsf-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M12 20V8M7 13l5-5 5 5M4 4h16"></path></symbol>
   <symbol id="vsf-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13"></path></symbol>
-  <symbol id="vsf-print" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M7 9V3h10v6M7 17H3V9h18v8h-4"></path><path d="M7 14h10v7H7z"></path></symbol>
+  <symbol id="vsf-document" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M6 3h8l4 4v14H6z"></path><path d="M14 3v4h4"></path></symbol>
+  <symbol id="vsf-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M4 7h16M4 12h16M4 17h16"></path></symbol>
+  <symbol id="vsf-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M6 9l6 6 6-6"></path></symbol>
   <symbol id="vsf-clock"viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7v5.5l4 2.5"></path></symbol>
 </svg>
 <div id="app"></div>
@@ -279,7 +302,7 @@ body.offline .pill-off{display:inline-flex}
    Configuration
    ====================================================================== */
 const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbyzvsFHVvYzoNh0nc0xlObCOShzCVTK7ECZw3_SzZ_cUyvd5BAsSutIs1PV8keydqSl1A/exec';
-const VERSION = '4.0.0';
+const VERSION = '5.0.0';
 const NS = 'http://www.w3.org/2000/svg';
 
 /* ======================================================================
@@ -407,10 +430,11 @@ function enTete() {
       session ? el('span', { class: 'who', text: session.nom }) : null,
       session ? el('a', { class: 'btn-icon', href: '#/reglages', 'aria-label': 'Réglages' }, ico('settings')) : null));
   if (!session || session.role !== 'intendant') return entete;
-  const surBesoins = location.hash.startsWith('#/besoins');
+  const surBesoins = location.hash.startsWith('#/besoins'), surTrousses = location.hash.startsWith('#/trousses');
   return [entete, el('nav', { class: 'onglets', 'aria-label': 'Sections' },
-    el('a', { href: '#/equipes', onclick: voirListe, 'aria-current': surBesoins ? null : 'page' }, 'Pointage'),
-    el('a', { href: '#/besoins', 'aria-current': surBesoins ? 'page' : null }, 'Besoins'))];
+    el('a', { href: '#/equipes', onclick: voirListe, 'aria-current': surBesoins || surTrousses ? null : 'page' }, 'Pointage'),
+    el('a', { href: '#/besoins', 'aria-current': surBesoins ? 'page' : null }, 'Besoins'),
+    el('a', { href: '#/trousses', 'aria-current': surTrousses ? 'page' : null }, 'Trousses'))];
 }
 function message(type, texte, ...extra) {
   const icone = { err: 'alert', warn: 'alert', info: 'info', ok: 'check' }[type];
@@ -880,7 +904,7 @@ async function viewListe(id) {
     if (!t.lignes) {
       contenu.push(el('div', { style: 'margin-top:24px' }, message('info', st === 'À acheter' ? 'Liste vide : plus aucun manquant à acheter.' : 'Cette liste ne contient aucune ligne.')));
     } else {
-      contenu.push(el('a', { class: 'btn secondaire plein', href: '#/besoins/' + encodeURIComponent(id) + '/bon', style: 'margin-top:24px' }, ico('print'), 'Bon de commande'));
+      contenu.push(el('a', { class: 'btn secondaire plein', href: '#/besoins/' + encodeURIComponent(id) + '/bon', style: 'margin-top:24px' }, ico('document'), 'Bon de commande'));
       contenu.push(el('div', { class: 'seg', role: 'group', 'aria-label': 'Affichage' },
         el('button', { type: 'button', 'aria-pressed': String(vue === 'groupee'), onclick: () => { vue = 'groupee'; peindre(); } }, 'Par article'),
         el('button', { type: 'button', 'aria-pressed': String(vue === 'ventilee'), onclick: () => { vue = 'ventilee'; peindre(); } }, 'Par équipe')));
@@ -953,6 +977,218 @@ async function viewListe(id) {
 }
 
 /* ======================================================================
+   Intendant : trousses types (affectation par catégorie, édition, glisser-déposer)
+   ====================================================================== */
+const CLE_TROUSSES = 'sacs.trousses';
+const nbArt = n => plur(n, 'article', 'articles');
+const metaTrousse = t => nbArt(t.lignes.length) + ' · ' + (t.categories.length ? 'Utilisée par ' + t.categories.join(', ') : 'Non affectée');
+async function chargerTrousses() { const d = await authPost('getTrousses', {}); lsSet(CLE_TROUSSES, d); return d; }
+const msgErr = e => (RETRYABLE(e.code) ? 'Pas de connexion : changement non enregistré.' : e.message);
+
+async function viewTrousses() {
+  let data = ls(CLE_TROUSSES, null), horsLigne = false;
+  const statut = el('div'), zoneCats = el('div'), zoneListe = el('ul', { class: 'liste' }), zoneBtn = el('div', { style: 'margin-top:24px' });
+  mount(enTete(), el('main', { class: 'page' }, bandeauEnvois(),
+    el('div', { class: 'filet' }), el('h1', { class: 'display titre-page', text: 'Trousses' }),
+    el('p', { class: 'soft', style: 'margin:16px 0 24px', text: 'Contenu des sacs par catégorie. Les changements valent pour les prochains pointages.' }), statut,
+    el('h2', { class: 'h3', style: 'margin:24px 0 8px', text: 'Par catégorie' }), zoneCats,
+    el('h2', { class: 'h3', style: 'margin:32px 0 16px', text: 'Trousses types' }), zoneListe, zoneBtn));
+  paintBanners();
+
+  function peindre() {
+    if (!data) return;
+    statut.replaceChildren(...(horsLigne ? [message('warn', 'Hors ligne : trousses enregistrées sur ce téléphone, modifications impossibles.')] : []));
+    zoneCats.replaceChildren(...data.categories.map(c => {
+      const sel = el('select', { id: 'cat-' + c.categorie, 'aria-label': 'Trousse pour ' + c.libelle }, data.trousses.map(t => el('option', { value: t.id_trousse, text: t.nom })));
+      sel.value = c.id_trousse;
+      sel.addEventListener('change', async () => {
+        const avant = c.id_trousse, apres = sel.value; sel.disabled = true;
+        try { await authPost('affecterCategorie', { categorie: c.categorie, id_trousse: apres }); data = await chargerTrousses(); horsLigne = false; toast(c.libelle + ' : ' + data.trousses.find(t => t.id_trousse === apres).nom); peindre(); }
+        catch (e) { sel.value = avant; sel.disabled = false; if (e.code !== 'AUTH') toast(msgErr(e)); }
+      });
+      return el('div', { class: 'cat-ligne' }, el('label', { for: 'cat-' + c.categorie, text: c.libelle }), sel);
+    }));
+    zoneListe.replaceChildren(...data.trousses.map(t => el('li', {}, el('a', { class: 'carte', href: '#/trousses/' + encodeURIComponent(t.id_trousse) },
+      el('div', {}, el('span', { class: 'nom', text: t.nom }), el('div', { class: 'meta', text: metaTrousse(t) })), ico('chevron-right', 32)))));
+    zoneBtn.replaceChildren(el('button', { class: 'btn secondaire plein', type: 'button', onclick: nouvelle }, ico('plus'), 'Nouvelle trousse'));
+  }
+  function nouvelle() {
+    const nom = el('input', { id: 'nt-nom', type: 'text', maxlength: '60', autocomplete: 'off' });
+    const src = el('select', { id: 'nt-src' }, data.trousses.map(t => el('option', { value: t.id_trousse, text: t.nom })));
+    const maj = () => { const t = data.trousses.find(x => x.id_trousse === src.value); nom.value = 'Copie de ' + (t ? t.nom : ''); };
+    src.addEventListener('change', maj); maj();
+    dialogue({
+      titre: 'Nouvelle trousse',
+      corps: [el('p', { class: 'soft', text: 'Elle démarre comme une copie : tu pourras ensuite ajouter, retirer et réordonner les articles.' }),
+        el('label', { class: 'champ' }, el('span', { text: 'Copier depuis' }), src),
+        el('label', { class: 'champ' }, el('span', { text: 'Nom de la trousse' }), nom)],
+      ok: 'Créer',
+      action: async () => {
+        const t = data.trousses.find(x => x.id_trousse === src.value);
+        const r = await authPost('enregistrerTrousse', { id_trousse: '', nom: nom.value, lignes: t.lignes.filter(l => l.actif).map(l => ({ code_article: l.code_article, quantite_cible: l.quantite_cible })) });
+        await chargerTrousses(); location.hash = '#/trousses/' + encodeURIComponent(r.id_trousse);
+      }
+    });
+  }
+  if (data) peindre(); else statut.replaceChildren(el('p', { class: 'soft', text: 'Chargement des trousses…' }));
+  try { data = await chargerTrousses(); horsLigne = false; peindre(); }
+  catch (e) {
+    if (e.code === 'AUTH') return;
+    if (RETRYABLE(e.code) && data) { horsLigne = true; peindre(); }
+    else statut.replaceChildren(message('err', RETRYABLE(e.code) ? 'Pas de connexion et les trousses n\'ont jamais été chargées sur ce téléphone.' : e.message));
+  }
+  flushQueue();
+}
+
+async function viewTrousse(id) {
+  let data = ls(CLE_TROUSSES, null), base = '', m = null, titre = '';
+  const entete = el('div'), zoneInfo = el('div'), zoneLignes = el('ul', { class: 'lignes' }), zoneBas = el('div'), barre = el('div', { class: 'barre' });
+  const nomIn = el('input', { id: 'tr-nom', type: 'text', maxlength: '60', autocomplete: 'off' });
+  nomIn.addEventListener('input', () => { m.nom = nomIn.value; peindreBarre(); });
+  mount(enTete(), el('main', { class: 'page' }, entete, zoneInfo, el('label', { class: 'champ', style: 'margin-top:24px' }, el('span', { text: 'Nom de la trousse' }), nomIn),
+    el('h2', { class: 'h3', style: 'margin:24px 0 8px', text: 'Contenu' }), zoneLignes, zoneBas), barre);
+
+  const cle = x => JSON.stringify({ n: x.nom.trim(), l: x.lignes.map(l => [l.code_article, l.quantite_cible]) });
+  const sale = () => !!m && cle(m) !== base;
+  const trousse = () => data && data.trousses.find(t => t.id_trousse === id);
+  function charger() {
+    const t = trousse(); if (!t) return false;
+    m = { nom: t.nom, lignes: t.lignes.map(l => ({ ...l })) }; base = cle(m); titre = t.nom; nomIn.value = t.nom; return true;
+  }
+  function quitter(ev) {
+    if (!sale()) return;
+    ev.preventDefault();
+    dialogue({ titre: 'Abandonner les modifications ?', corps: [el('p', { text: 'Les changements non enregistrés seront perdus.' })], ok: 'Abandonner', action: async () => { location.hash = '#/trousses'; } });
+  }
+  function peindreEntete() {
+    const t = trousse();
+    entete.replaceChildren(el('a', { class: 'retour', href: '#/trousses', onclick: quitter }, ico('arrow-left'), 'Trousses'),
+      el('div', { class: 'filet' }), el('h1', { class: 'display titre-page', text: titre }));
+    zoneInfo.replaceChildren(message('info', t.categories.length
+      ? 'Utilisée par ' + t.categories.join(', ') + '. Les changements valent pour les prochains pointages ; les besoins déjà ouverts ne bougent pas.'
+      : 'Non affectée : l\'affecter à une catégorie depuis la liste des trousses.'));
+  }
+  const focusBtn = (code, act) => { const b = zoneLignes.querySelector('[data-code="' + code + '"][data-act="' + act + '"]'); if (b && !b.disabled) b.focus({ preventScroll: true }); return !!(b && !b.disabled); };
+  function deplacer(i, d, code) {
+    const j = i + d; if (j < 0 || j >= m.lignes.length) return;
+    const [x] = m.lignes.splice(i, 1); m.lignes.splice(j, 0, x);
+    peindreLignes(); if (!focusBtn(code, d < 0 ? 'up' : 'down')) focusBtn(code, d < 0 ? 'down' : 'up');
+  }
+  function glisser(e, li) {
+    if (e.button > 0) return;
+    e.preventDefault();
+    const grip = e.currentTarget, pageY = ev => ev.clientY + window.scrollY;
+    try { grip.setPointerCapture(e.pointerId); } catch {}
+    li.classList.add('glisse');
+    const top0 = li.getBoundingClientRect().top + window.scrollY, y0 = pageY(e);
+    const suivre = ev => {
+      const dy = pageY(ev) - y0, voulu = top0 + dy;
+      li.style.transform = '';
+      let nat = li.getBoundingClientRect().top + window.scrollY;
+      const h = li.offsetHeight, centre = () => voulu + h / 2;
+      for (;;) {
+        const suiv = li.nextElementSibling, prec = li.previousElementSibling;
+        if (suiv && centre() > suiv.getBoundingClientRect().top + window.scrollY + suiv.offsetHeight / 2) zoneLignes.insertBefore(suiv, li);
+        else if (prec && centre() < prec.getBoundingClientRect().top + window.scrollY + prec.offsetHeight / 2) zoneLignes.insertBefore(li, prec);
+        else break;
+        nat = li.getBoundingClientRect().top + window.scrollY;
+      }
+      li.style.transform = 'translateY(' + (voulu - nat) + 'px)';
+      if (ev.clientY < 90) window.scrollBy(0, -14); else if (ev.clientY > window.innerHeight - 140) window.scrollBy(0, 14);
+    };
+    const fin = () => {
+      grip.removeEventListener('pointermove', suivre); grip.removeEventListener('pointerup', fin); grip.removeEventListener('pointercancel', fin);
+      li.style.transform = ''; li.classList.remove('glisse');
+      const ordre = [...zoneLignes.children].map(x => x.dataset.code), code = li.dataset.code;
+      m.lignes.sort((a, b) => ordre.indexOf(a.code_article) - ordre.indexOf(b.code_article));
+      peindreLignes(); focusBtn(code, 'grip');
+    };
+    grip.addEventListener('pointermove', suivre); grip.addEventListener('pointerup', fin); grip.addEventListener('pointercancel', fin);
+  }
+  function peindreLignes() {
+    const n = m.lignes.length;
+    zoneLignes.replaceChildren(...m.lignes.map((l, i) => {
+      const val = el('span', { class: 'l-val', 'aria-label': 'Quantité cible : ' + l.quantite_cible, text: String(l.quantite_cible) });
+      const moins = el('button', { class: 'sbtn', type: 'button', 'aria-label': 'Diminuer la quantité : ' + l.libelle }, ico('minus'));
+      const plus = el('button', { class: 'sbtn', type: 'button', 'aria-label': 'Augmenter la quantité : ' + l.libelle }, ico('plus'));
+      const maj = () => { val.textContent = String(l.quantite_cible); val.setAttribute('aria-label', 'Quantité cible : ' + l.quantite_cible); moins.disabled = l.quantite_cible <= 1; plus.disabled = l.quantite_cible >= 99; peindreBarre(); };
+      moins.addEventListener('click', () => { if (l.quantite_cible > 1) { l.quantite_cible--; maj(); } });
+      plus.addEventListener('click', () => { if (l.quantite_cible < 99) { l.quantite_cible++; maj(); } });
+      moins.disabled = l.quantite_cible <= 1; plus.disabled = l.quantite_cible >= 99;
+      const grip = el('button', { class: 'sbtn grip', type: 'button', 'data-code': l.code_article, 'data-act': 'grip', 'aria-label': 'Déplacer ' + l.libelle + ' (glisser)' }, ico('menu'));
+      const li = el('li', { class: 't-ligne' + (l.actif === false ? ' inactif' : ''), 'data-code': l.code_article }, grip,
+        el('div', {}, el('span', { class: 't-nom', text: l.libelle }),
+          l.actif === false ? el('span', { class: 'l-role ean-err', text: 'Article désactivé dans la base : ignoré au pointage' }) : el('span', { class: 'l-role', text: [l.groupe, l.role].filter(Boolean).join(' · ') })),
+        el('div', { class: 't-ctrl' }, moins, val, plus, el('span', { class: 'sp' }),
+          el('button', { class: 'sbtn', type: 'button', 'data-code': l.code_article, 'data-act': 'up', disabled: i === 0 ? true : null, 'aria-label': 'Monter ' + l.libelle, onclick: () => deplacer(i, -1, l.code_article) }, ico('chevron-down')),
+          el('button', { class: 'sbtn', type: 'button', 'data-code': l.code_article, 'data-act': 'down', disabled: i === n - 1 ? true : null, 'aria-label': 'Descendre ' + l.libelle, onclick: () => deplacer(i, 1, l.code_article) }, ico('chevron-down')),
+          el('button', { class: 'sbtn danger', type: 'button', 'aria-label': 'Retirer ' + l.libelle, onclick: () => { m.lignes.splice(i, 1); peindreLignes(); const b = zoneLignes.querySelector('[data-act="grip"]'); if (b) b.focus({ preventScroll: true }); } }, ico('trash'))));
+      li.querySelector('.sbtn[data-act="up"] .ico').classList.add('haut');
+      grip.addEventListener('pointerdown', ev => glisser(ev, li));
+      return li;
+    }));
+    if (!n) zoneLignes.replaceChildren(el('li', {}, message('warn', 'Trousse vide : ajouter au moins un article.')));
+    peindreBarre();
+  }
+  function ajouter() {
+    const deja = new Set(m.lignes.map(l => l.code_article));
+    const dispo = () => data.articles.filter(a => !deja.has(a.code_article));
+    const liste = el('ul', { class: 'liste-ajout' });
+    const recherche = el('input', { id: 'aj-q', type: 'search', autocomplete: 'off', placeholder: 'Rechercher un article' });
+    const voile = el('div', { class: 'voile' });
+    function peindreAj() {
+      const q = recherche.value.trim().toLowerCase();
+      const items = dispo().filter(a => !q || (a.libelle + ' ' + (a.groupe || '')).toLowerCase().includes(q));
+      liste.replaceChildren(...(items.length ? items.map(a => el('li', {},
+        el('div', {}, el('span', { class: 'l-nom', text: a.libelle }), el('span', { class: 'l-role', text: [a.groupe, a.role].filter(Boolean).join(' · ') })),
+        el('button', { class: 'sbtn', type: 'button', 'data-ajout': a.code_article, 'aria-label': 'Ajouter ' + a.libelle, onclick: () => {
+          m.lignes.push({ code_article: a.code_article, libelle: a.libelle, groupe: a.groupe, role: a.role, actif: true, quantite_cible: 1 }); deja.add(a.code_article);
+          peindreLignes(); peindreAj(); toast(a.libelle + ' ajouté'); } }, ico('plus')))) : [el('li', {}, el('span', { class: 'soft', text: q ? 'Aucun article trouvé.' : 'Tous les articles actifs sont déjà dans la trousse.' }))]));
+    }
+    recherche.addEventListener('input', peindreAj);
+    const ok = el('button', { class: 'btn primaire plein', type: 'button', onclick: () => voile.remove() }, 'Terminé');
+    voile.append(el('div', { class: 'feuille', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'aj-t' },
+      el('h2', { class: 'h3', id: 'aj-t', text: 'Ajouter des articles' }), el('label', { class: 'champ', style: 'margin-top:16px' }, el('span', { text: 'Recherche' }), recherche), liste, el('div', { class: 'actions' }, ok)));
+    voile.addEventListener('keydown', ev => { if (ev.key === 'Escape') voile.remove(); });
+    peindreAj(); document.body.append(voile); recherche.focus();
+  }
+  function peindreBarre() {
+    const dirty = sale(), nom = (m.nom || '').trim(), vide = !m.lignes.length;
+    const bloque = !dirty || !nom || vide;
+    const bEnr = el('button', { class: 'btn primaire', type: 'button', 'aria-disabled': String(bloque), onclick: () => { if (!bloque) enregistrer(bEnr); } }, 'Enregistrer');
+    const bAnn = dirty ? el('button', { class: 'btn tertiaire', type: 'button', onclick: () => { charger(); peindreEntete(); peindreLignes(); } }, 'Annuler') : null;
+    barre.replaceChildren(el('div', { class: 'barre-in' },
+      el('div', { class: 'resume' }, nbArt(m.lignes.length), el('small', { text: !nom ? 'Nom obligatoire' : vide ? 'Ajouter au moins un article' : dirty ? 'Modifications non enregistrées' : 'Aucune modification' })),
+      el('div', { style: 'display:flex;gap:8px;align-items:center' }, bAnn, bEnr)));
+  }
+  async function enregistrer(btn) {
+    btn.setAttribute('aria-disabled', 'true'); btn.textContent = 'Enregistrement…';
+    try {
+      await authPost('enregistrerTrousse', { id_trousse: id, nom: m.nom, lignes: m.lignes.map(l => ({ code_article: l.code_article, quantite_cible: l.quantite_cible })) });
+      data = await chargerTrousses(); charger(); peindreEntete(); peindreLignes(); toast('Trousse enregistrée');
+    } catch (e) { if (e.code !== 'AUTH') toast(msgErr(e)); peindreBarre(); }
+  }
+  function supprimer() {
+    dialogue({ titre: 'Supprimer cette trousse ?', corps: [el('p', { text: titre }), el('p', { class: 'soft', text: 'Impossible si une catégorie l\'utilise encore.' })], ok: 'Supprimer',
+      action: async () => { await authPost('supprimerTrousse', { id_trousse: id }); await chargerTrousses(); location.hash = '#/trousses'; } });
+  }
+  function tout() {
+    if (!charger()) { entete.replaceChildren(el('a', { class: 'retour', href: '#/trousses' }, ico('arrow-left'), 'Trousses'), message('err', 'Trousse introuvable.')); zoneLignes.replaceChildren(); barre.replaceChildren(); return; }
+    peindreEntete(); peindreLignes();
+    zoneBas.replaceChildren(el('button', { class: 'btn secondaire plein', type: 'button', style: 'margin-top:16px', onclick: ajouter }, ico('plus'), 'Ajouter un article'),
+      el('button', { class: 'btn tertiaire', type: 'button', style: 'margin-top:24px', onclick: supprimer }, 'Supprimer cette trousse'));
+  }
+  if (data && trousse()) tout(); else entete.replaceChildren(el('p', { class: 'soft', text: 'Chargement de la trousse…' }));
+  if (!m) {
+    try { data = await chargerTrousses(); tout(); }
+    catch (e) { if (e.code !== 'AUTH') entete.replaceChildren(el('a', { class: 'retour', href: '#/trousses' }, ico('arrow-left'), 'Trousses'), message('err', RETRYABLE(e.code) ? 'Pas de connexion et cette trousse n\'a jamais été chargée sur ce téléphone.' : e.message)); }
+  } else {
+    chargerTrousses().then(d => { data = d; if (!sale()) { charger(); peindreEntete(); peindreLignes(); } else { peindreEntete(); } }).catch(() => {});
+  }
+  focusTitre();
+}
+
+/* ======================================================================
    Bon de commande (imprimable / PDF) avec codes-barres EAN
    ====================================================================== */
 async function viewBon(id) {
@@ -1008,7 +1244,7 @@ async function viewBon(id) {
     feuille.replaceChildren(el('section', { class: 'bon-feuille', 'aria-label': 'Bon de commande' }, cadre));
     barre.replaceChildren(el('div', { class: 'barre-in' },
       el('div', { class: 'resume' }, plur(lignes.length, 'article', 'articles'), el('small', { text: plur(unites, 'unité', 'unités') })),
-      el('button', { class: 'btn primaire', type: 'button', 'aria-disabled': String(!lignes.length), onclick: () => { if (lignes.length) window.print(); } }, ico('print'), 'Imprimer / PDF')));
+      el('button', { class: 'btn primaire', type: 'button', 'aria-disabled': String(!lignes.length), onclick: () => { if (lignes.length) window.print(); } }, ico('document'), 'Imprimer / PDF')));
   }
   if (data) peindre(); else feuille.replaceChildren(el('p', { class: 'soft', text: 'Chargement de la liste…' }));
   try { data = await authPost('getListe', { id_liste: id }); lsSet(cle, data); horsLigne = false; peindre(); }
@@ -1034,6 +1270,9 @@ function route() {
     case 'code': return viewCode();
     case 'pointage': return viewPointage(decodeURIComponent(arg || ''));
     case 'reglages': return viewReglages();
+    case 'trousses':
+      if (session.role !== 'intendant') { location.replace('#/equipes'); return; }
+      return arg ? viewTrousse(decodeURIComponent(arg)) : viewTrousses();
     case 'besoins':
       if (session.role !== 'intendant') { location.replace('#/equipes'); return; }
       if (arg && sub === 'bon') return viewBon(decodeURIComponent(arg));
