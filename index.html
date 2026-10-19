@@ -190,6 +190,33 @@ body.offline .pill-off{display:inline-flex}
 @media (prefers-color-scheme: dark){.reassort .sbtn[aria-pressed="true"]{color:#0E0E0E}}
 .reassort .txt{font-family:var(--f-cond);font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-soft)}
 
+.ean-err{color:var(--err);font-weight:600}
+
+/* ---------- Bon de commande ---------- */
+.bon-feuille{background:#fff;color:#000;border:1px solid var(--line);border-radius:4px;padding:24px 16px;margin-top:16px}
+.bon-ent{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;border-bottom:3px solid #000;padding-bottom:12px;margin-bottom:4px}
+.bon-feuille .display{color:#000;font-size:clamp(32px,9vw,44px)}
+.bon-meta{font-size:14px;line-height:1.4;text-align:right;color:#404040}
+.bon-club{font-family:var(--f-cond);font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#000;margin:0 0 4px}
+.ligne-bon{display:grid;grid-template-columns:1fr auto;grid-template-areas:"nom qte" "cb cb";gap:8px 16px;align-items:center;padding:12px 0;border-bottom:1px solid #C0C0C0;break-inside:avoid}
+.ligne-bon .l-nom{grid-area:nom;color:#000}
+.ligne-bon .qte{grid-area:qte;font-family:var(--f-cond);font-weight:700;font-size:32px;line-height:1;white-space:nowrap;color:#000}
+.ligne-bon .cb-zone{grid-area:cb}
+.cb{display:block;width:min(100%,300px);height:64px;background:#fff}
+.cb-num{display:block;font-family:'JetBrains Mono','Courier New',monospace;font-size:14px;letter-spacing:.12em;color:#000;margin-top:2px}
+.cb-vide{font-size:14px;font-weight:600;color:#7A1720;border:1px dashed #7A1720;padding:8px 12px;border-radius:4px;display:inline-block}
+@media print{
+  @page{size:A4;margin:12mm}
+  html,body{background:#fff!important;color:#000!important;font-size:12pt}
+  .top,.onglets,.no-print,.barre,#bandeau-envois,.toast,.voile{display:none!important}
+  .page{max-width:none;padding:0}
+  .bon-feuille{border:0;padding:0;margin:0}
+  .ligne-bon{grid-template-columns:1fr 64mm 20mm;grid-template-areas:"nom cb qte";padding:3mm 0}
+  .cb{width:60mm;height:15mm}
+  .ligne-bon .qte{text-align:right}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
 @media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.carte:hover,.btn.primaire:hover{transform:none}}
 </style>
 </head>
@@ -206,7 +233,8 @@ body.offline .pill-off{display:inline-flex}
   <symbol id="vsf-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"></path></symbol>
   <symbol id="vsf-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M12 20V8M7 13l5-5 5 5M4 4h16"></path></symbol>
   <symbol id="vsf-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13"></path></symbol>
-  <symbol id="vsf-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7v5.5l4 2.5"></path></symbol>
+  <symbol id="vsf-print" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M7 9V3h10v6M7 17H3V9h18v8h-4"></path><path d="M7 14h10v7H7z"></path></symbol>
+  <symbol id="vsf-clock"viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7v5.5l4 2.5"></path></symbol>
 </svg>
 <div id="app"></div>
 <div id="live" class="sr-only" aria-live="polite" role="status"></div>
@@ -219,7 +247,7 @@ body.offline .pill-off{display:inline-flex}
    Configuration
    ====================================================================== */
 const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbyzvsFHVvYzoNh0nc0xlObCOShzCVTK7ECZw3_SzZ_cUyvd5BAsSutIs1PV8keydqSl1A/exec';
-const VERSION = '3.0.0';
+const VERSION = '4.0.0';
 const NS = 'http://www.w3.org/2000/svg';
 
 /* ======================================================================
@@ -712,6 +740,57 @@ function dialogue({ titre, corps, ok, action }) {
   });
   document.body.append(voile); bOk.focus();
 }
+/* ======================================================================
+   EAN : validation (clé de contrôle) et code-barres EAN-13 / EAN-8 en SVG
+   ====================================================================== */
+const EAN_L = ['0001101', '0011001', '0010011', '0111101', '0100011', '0110001', '0101111', '0111011', '0110111', '0001011'];
+const EAN_G = ['0100111', '0110011', '0011011', '0100001', '0011101', '0111001', '0000101', '0010001', '0001001', '0010111'];
+const EAN_R = ['1110010', '1100110', '1101100', '1000010', '1011100', '1001110', '1010000', '1000100', '1001000', '1110100'];
+const EAN_PAR = ['LLLLLL', 'LLGLGG', 'LLGGLG', 'LLGGGL', 'LGLLGG', 'LGGLLG', 'LGGGLL', 'LGLGLG', 'LGLGGL', 'LGGLGL'];
+function cleEanOk(c) {
+  let t = 0;
+  for (let i = 0; i < c.length - 1; i++) t += Number(c[i]) * ((c.length - 1 - i) % 2 === 1 ? 3 : 1);
+  return (10 - t % 10) % 10 === Number(c[c.length - 1]);
+}
+/* → { ean, brut, statut: 'ok' | 'absent' | 'invalide' }. Rend les zéros de tête perdus par le tableur (UPC-A 12 chiffres, etc.). */
+function analyserEan(brut) {
+  const b = brut == null ? '' : String(brut).trim();
+  const s = b.replace(/\D/g, '');
+  if (!s) return { ean: '', brut: b, statut: 'absent' };
+  if ((s.length === 7 || s.length === 8) && cleEanOk(s.padStart(8, '0'))) return { ean: s.padStart(8, '0'), brut: b, statut: 'ok' };
+  if (s.length >= 11 && s.length <= 13 && cleEanOk(s.padStart(13, '0'))) return { ean: s.padStart(13, '0'), brut: b, statut: 'ok' };
+  return { ean: '', brut: b, statut: 'invalide' };
+}
+function eanBits(e) {
+  let b = '101';
+  if (e.length === 8) {
+    for (let i = 0; i < 4; i++) b += EAN_L[e[i]];
+    b += '01010';
+    for (let i = 4; i < 8; i++) b += EAN_R[e[i]];
+  } else {
+    const par = EAN_PAR[e[0]];
+    for (let i = 1; i <= 6; i++) b += (par[i - 1] === 'L' ? EAN_L : EAN_G)[e[i]];
+    b += '01010';
+    for (let i = 7; i < 13; i++) b += EAN_R[e[i]];
+  }
+  return b + '101';
+}
+function codeBarres(e) {
+  const bits = eanBits(e), Q = 11, W = bits.length + 2 * Q;
+  let d = '', i = 0;
+  while (i < bits.length) {
+    if (bits[i] === '1') { let j = i; while (bits[j] === '1') j++; d += `M${Q + i} 0h${j - i}v60h-${j - i}z`; i = j; } else i++;
+  }
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'cb'); svg.setAttribute('viewBox', `0 0 ${W} 60`); svg.setAttribute('preserveAspectRatio', 'none');
+  svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Code-barres ' + e); svg.setAttribute('shape-rendering', 'crispEdges');
+  const fond = document.createElementNS(NS, 'rect'); fond.setAttribute('width', W); fond.setAttribute('height', 60); fond.setAttribute('fill', '#fff');
+  const barres = document.createElementNS(NS, 'path'); barres.setAttribute('d', d); barres.setAttribute('fill', '#000');
+  svg.append(fond, barres);
+  return svg;
+}
+const libelleEan = info => info.statut === 'ok' ? 'EAN ' + info.ean : info.statut === 'invalide' ? 'EAN invalide : ' + info.brut : 'EAN à renseigner';
+
 const STATUTS = { 'À acheter': ['warn', 'clock'], 'Acheté': ['info', 'info'], 'Soldé': ['ok', 'check'] };
 function badgeStatut(st) { const [cls, ic] = STATUTS[st] || ['info', 'info']; return el('span', { class: 'badge ' + cls }, ico(ic, 16), st); }
 const nomListe = id => 'Liste ' + String(id).replace(/^L-/, '');
@@ -769,17 +848,20 @@ async function viewListe(id) {
     if (!t.lignes) {
       contenu.push(el('div', { style: 'margin-top:24px' }, message('info', st === 'À acheter' ? 'Liste vide : plus aucun manquant à acheter.' : 'Cette liste ne contient aucune ligne.')));
     } else {
+      contenu.push(el('a', { class: 'btn secondaire plein', href: '#/besoins/' + encodeURIComponent(id) + '/bon', style: 'margin-top:24px' }, ico('print'), 'Bon de commande'));
       contenu.push(el('div', { class: 'seg', role: 'group', 'aria-label': 'Affichage' },
         el('button', { type: 'button', 'aria-pressed': String(vue === 'groupee'), onclick: () => { vue = 'groupee'; peindre(); } }, 'Par article'),
         el('button', { type: 'button', 'aria-pressed': String(vue === 'ventilee'), onclick: () => { vue = 'ventilee'; peindre(); } }, 'Par équipe')));
       if (vue === 'groupee') {
+        const sansEan = data.groupee.filter(a => analyserEan(a.ean).statut !== 'ok').length;
         contenu.push(el('p', { class: 'petit soft', style: 'margin:16px 0' }, plur(t.articles, 'article', 'articles') + ' · ' + plur(t.unites, 'unité', 'unités') + ' à acheter.'),
-          el('ul', { class: 'lignes' }, data.groupee.map(a => el('li', { class: 'ligne-b' },
+          sansEan ? message('warn', plur(sansEan, 'article sans EAN valide', 'articles sans EAN valide') + ' : pas de code-barres sur le bon. À corriger dans l\'onglet Articles du Sheet.') : null,
+          el('ul', { class: 'lignes' }, data.groupee.map(a => { const info = analyserEan(a.ean); return el('li', { class: 'ligne-b' },
             el('div', {},
               el('span', { class: 'l-nom', text: a.libelle }),
-              el('span', { class: 'ean', text: a.ean ? 'EAN ' + String(a.ean) : 'EAN à renseigner' }),
+              el('span', { class: 'ean' + (info.statut === 'invalide' ? ' ean-err' : ''), text: libelleEan(info) }),
               el('span', { class: 'l-role', text: a.equipes.map(e => e.libelle + ' ×' + e.quantite).join(' · ') })),
-            el('span', { class: 'qte', 'aria-label': a.quantite_totale + ' à acheter', text: '×' + a.quantite_totale })))));
+            el('span', { class: 'qte', 'aria-label': a.quantite_totale + ' à acheter', text: '×' + a.quantite_totale })); })));
       } else {
         data.ventilee.forEach(v => {
           const faites = v.lignes.filter(l => l.reassorti).length;
@@ -795,7 +877,7 @@ async function viewListe(id) {
         });
       }
     }
-    corps.replaceChildren(...contenu);
+    corps.replaceChildren(...contenu.filter(Boolean));
 
     // Barre d'actions
     if (st === 'Soldé') { barre.replaceChildren(el('div', { class: 'barre-in' }, el('div', { class: 'resume' }, 'Liste soldée', el('small', { text: t.lignes + ' lignes réassorties' })))); return; }
@@ -839,12 +921,58 @@ async function viewListe(id) {
 }
 
 /* ======================================================================
+   Bon de commande (imprimable / PDF) avec codes-barres EAN
+   ====================================================================== */
+async function viewBon(id) {
+  const cle = 'sacs.liste.' + id;
+  let data = ls(cle, null), horsLigne = false;
+  const haut = el('div', { class: 'no-print' }), feuille = el('div'), barre = el('div', { class: 'barre no-print' });
+  mount(enTete(), el('main', { class: 'page' }, haut, feuille), barre);
+
+  function peindre() {
+    if (!data) return;
+    const lignes = data.groupee.map(a => ({ a, info: analyserEan(a.ean) }));
+    const sans = lignes.filter(l => l.info.statut !== 'ok').length;
+    const unites = lignes.reduce((s, l) => s + l.a.quantite_totale, 0);
+    haut.replaceChildren(...[
+      el('a', { class: 'retour', href: '#/besoins/' + encodeURIComponent(id) }, ico('arrow-left'), nomListe(id)),
+      horsLigne ? message('warn', 'Hors ligne : liste enregistrée sur ce téléphone, peut-être pas à jour.') : null,
+      sans ? message('warn', plur(sans, 'article sans EAN valide', 'articles sans EAN valide') + ' : pas de code-barres sur le bon (le libellé reste imprimé). Corriger dans l\'onglet Articles du Sheet, puis rouvrir cette page.') : null,
+      lignes.length ? el('p', { class: 'petit soft', style: 'margin:0' }, 'Aperçu du bon. « Imprimer » permet aussi d\'enregistrer en PDF.') : null].filter(Boolean));
+    feuille.replaceChildren(el('section', { class: 'bon-feuille', 'aria-label': 'Bon de commande' },
+      el('div', { class: 'bon-ent' },
+        el('div', {}, el('p', { class: 'bon-club', text: 'VSF Football · sacs pharmacie' }), el('h1', { class: 'display', text: 'Bon de commande' })),
+        el('div', { class: 'bon-meta' }, el('div', { text: nomListe(id) }), el('div', { text: 'Édité le ' + new Date().toLocaleDateString('fr-FR') }),
+          el('div', { text: plur(lignes.length, 'article', 'articles') + ' · ' + plur(unites, 'unité', 'unités') }))),
+      lignes.length
+        ? el('ul', { class: 'lignes', style: 'gap:0' }, lignes.map(({ a, info }) => el('li', { class: 'ligne-bon' },
+            el('span', { class: 'l-nom', text: a.libelle }),
+            el('span', { class: 'qte', 'aria-label': 'Quantité ' + a.quantite_totale, text: '×' + a.quantite_totale }),
+            el('div', { class: 'cb-zone' }, info.statut === 'ok'
+              ? [codeBarres(info.ean), el('span', { class: 'cb-num', text: info.ean })]
+              : el('span', { class: 'cb-vide', text: info.statut === 'invalide' ? 'EAN invalide : ' + info.brut : 'Pas de code-barres (EAN à renseigner)' })))))
+        : el('p', { style: 'margin:16px 0', text: 'Liste vide : rien à commander.' })));
+    barre.replaceChildren(el('div', { class: 'barre-in' },
+      el('div', { class: 'resume' }, plur(lignes.length, 'article', 'articles'), el('small', { text: plur(unites, 'unité', 'unités') })),
+      el('button', { class: 'btn primaire', type: 'button', 'aria-disabled': String(!lignes.length), onclick: () => { if (lignes.length) window.print(); } }, ico('print'), 'Imprimer / PDF')));
+  }
+  if (data) peindre(); else feuille.replaceChildren(el('p', { class: 'soft', text: 'Chargement de la liste…' }));
+  try { data = await authPost('getListe', { id_liste: id }); lsSet(cle, data); horsLigne = false; peindre(); }
+  catch (e) {
+    if (e.code === 'AUTH') return;
+    if (RETRYABLE(e.code) && data) { horsLigne = true; peindre(); }
+    else feuille.replaceChildren(message('err', RETRYABLE(e.code) ? 'Pas de connexion et cette liste n\'a jamais été ouverte sur ce téléphone.' : e.message));
+  }
+  focusTitre();
+}
+
+/* ======================================================================
    Routeur
    ====================================================================== */
 function route() {
   document.querySelectorAll('.voile').forEach(v => v.remove());
   const h = (location.hash || '#/').slice(1);
-  const [, r, arg] = h.split('/');
+  const [, r, arg, sub] = h.split('/');
   if (!session || !session.token) { if (r !== 'login') { location.replace('#/login'); return; } return viewLogin(); }
   if (session.changer_code && r !== 'code' && r !== 'login') { location.replace('#/code'); return; }
   switch (r) {
@@ -854,6 +982,7 @@ function route() {
     case 'reglages': return viewReglages();
     case 'besoins':
       if (session.role !== 'intendant') { location.replace('#/equipes'); return; }
+      if (arg && sub === 'bon') return viewBon(decodeURIComponent(arg));
       return arg ? viewListe(decodeURIComponent(arg)) : viewBesoins();
     default: return viewEquipes();
   }
