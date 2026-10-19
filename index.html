@@ -166,6 +166,30 @@ body.offline .pill-off{display:inline-flex}
 .file-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
 .file-item .petit{margin:0}
 
+
+/* ---------- Intendant : navigation, listes de besoins ---------- */
+.onglets{display:flex;background:var(--surface);border-bottom:1px solid var(--line)}
+.onglets a{flex:1;display:flex;align-items:center;justify-content:center;min-height:48px;font-weight:600;color:var(--text-soft);text-decoration:none;border-bottom:3px solid transparent}
+.onglets a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-family:var(--f-cond);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.info{background:var(--info-bg);color:var(--info)}
+.badge.ok{background:var(--ok-bg);color:var(--ok)}
+.carte .haut{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:2px solid var(--accent);border-radius:4px;overflow:hidden;margin:24px 0 8px}
+.seg button{min-height:44px;padding:8px;border:0;background:transparent;color:var(--accent);font-weight:600;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--red-action);color:#fff}
+.ligne-b{display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px 16px}
+.ligne-b .qte{font-family:var(--f-cond);font-weight:700;font-size:28px;line-height:1;white-space:nowrap}
+.ligne-b.fait{background:var(--ok-bg)}
+.ean{display:block;font-family:'JetBrains Mono','Courier New',monospace;font-size:13px;color:var(--text-soft);margin:2px 0}
+.eq-tete{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:32px 0 8px}
+.eq-tete .h3{margin:0}
+.reassort{display:flex;align-items:center;gap:8px;flex:none}
+.reassort .sbtn[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+@media (prefers-color-scheme: dark){.reassort .sbtn[aria-pressed="true"]{color:#0E0E0E}}
+.reassort .txt{font-family:var(--f-cond);font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-soft)}
+
 @media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.carte:hover,.btn.primaire:hover{transform:none}}
 </style>
 </head>
@@ -195,7 +219,7 @@ body.offline .pill-off{display:inline-flex}
    Configuration
    ====================================================================== */
 const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbyzvsFHVvYzoNh0nc0xlObCOShzCVTK7ECZw3_SzZ_cUyvd5BAsSutIs1PV8keydqSl1A/exec';
-const VERSION = '2.0.0';
+const VERSION = '3.0.0';
 const NS = 'http://www.w3.org/2000/svg';
 
 /* ======================================================================
@@ -316,12 +340,17 @@ function focusTitre() { const h = app.querySelector('h1'); if (h) { h.setAttribu
 function enTete() {
   const logo = el('img', { class: 'logo', src: 'assets/vsf-logo.png', alt: 'VSF Football', height: '40' });
   logo.addEventListener('error', () => logo.replaceWith(el('span', { class: 'logo-txt', text: 'VSF' })));
-  return el('header', { class: 'top' },
+  const entete = el('header', { class: 'top' },
     el('a', { class: 'home', href: '#/equipes', 'aria-label': 'Accueil, mes équipes', onclick: voirListe }, logo),
     el('div', { class: 'top-user' },
       el('span', { class: 'pill-off' }, ico('alert', 16), 'Hors ligne'),
       session ? el('span', { class: 'who', text: session.nom }) : null,
       session ? el('a', { class: 'btn-icon', href: '#/reglages', 'aria-label': 'Réglages' }, ico('settings')) : null));
+  if (!session || session.role !== 'intendant') return entete;
+  const surBesoins = location.hash.startsWith('#/besoins');
+  return [entete, el('nav', { class: 'onglets', 'aria-label': 'Sections' },
+    el('a', { href: '#/equipes', onclick: voirListe, 'aria-current': surBesoins ? null : 'page' }, 'Pointage'),
+    el('a', { href: '#/besoins', 'aria-current': surBesoins ? 'page' : null }, 'Besoins'))];
 }
 function message(type, texte, ...extra) {
   const icone = { err: 'alert', warn: 'alert', info: 'info', ok: 'check' }[type];
@@ -660,6 +689,156 @@ function viewReglages() {
 }
 
 /* ======================================================================
+   Intendant : dialogue de confirmation, listes de besoins
+   ====================================================================== */
+function dialogue({ titre, corps, ok, action }) {
+  const zoneErr = el('div');
+  const bOk = el('button', { class: 'btn primaire plein', type: 'button' }, ok);
+  const bNo = el('button', { class: 'btn secondaire plein', type: 'button' }, 'Annuler');
+  const feuille = el('div', { class: 'feuille', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'dlg-t' },
+    el('h2', { class: 'h3', id: 'dlg-t', text: titre }), ...[].concat(corps), zoneErr, el('div', { class: 'actions' }, bOk, bNo));
+  const voile = el('div', { class: 'voile' }, feuille);
+  const fermer = () => voile.remove();
+  bNo.addEventListener('click', fermer);
+  voile.addEventListener('keydown', ev => { if (ev.key === 'Escape') fermer(); });
+  bOk.addEventListener('click', async () => {
+    bOk.disabled = bNo.disabled = true; bOk.textContent = 'Enregistrement…'; zoneErr.replaceChildren();
+    try { await action(); fermer(); }
+    catch (e) {
+      if (e.code === 'AUTH') { fermer(); return; }
+      zoneErr.replaceChildren(message('err', e.code === 'RESEAU' ? 'Pas de connexion. Réessayer avec du réseau.' : e.message));
+      bOk.disabled = bNo.disabled = false; bOk.textContent = ok;
+    }
+  });
+  document.body.append(voile); bOk.focus();
+}
+const STATUTS = { 'À acheter': ['warn', 'clock'], 'Acheté': ['info', 'info'], 'Soldé': ['ok', 'check'] };
+function badgeStatut(st) { const [cls, ic] = STATUTS[st] || ['info', 'info']; return el('span', { class: 'badge ' + cls }, ico(ic, 16), st); }
+const nomListe = id => 'Liste ' + String(id).replace(/^L-/, '');
+const datesListe = l => 'Créée ' + fmtDate(l.date_creation) + (l.date_achat ? ' · achetée ' + fmtDate(l.date_achat) : '') + (l.date_solde ? ' · soldée ' + fmtDate(l.date_solde) : '');
+
+async function viewBesoins() {
+  const cle = 'sacs.listes';
+  const zone = el('ul', { class: 'liste' }), statut = el('div');
+  function dessiner(listes) {
+    zone.replaceChildren(...listes.map(l => el('li', {}, el('a', { class: 'carte', href: '#/besoins/' + encodeURIComponent(l.id_liste) },
+      el('div', {},
+        el('div', { class: 'haut' }, el('span', { class: 'nom', text: nomListe(l.id_liste) }), badgeStatut(l.statut)),
+        el('div', { class: 'meta', text: plur(l.nb_lignes, 'ligne', 'lignes') + ' · ' + plur(l.quantite_totale, 'unité', 'unités') + ' · ' + datesListe(l) })),
+      ico('chevron-right', 32)))));
+    statut.replaceChildren(listes.length ? '' : message('info', 'Aucun besoin pour le moment. Les manquants arrivent ici après chaque pointage.'));
+  }
+  const cache = ls(cle, null);
+  if (cache) dessiner(cache);
+  mount(enTete(), el('main', { class: 'page' }, bandeauEnvois(),
+    el('div', { class: 'filet' }), el('h1', { class: 'display titre-page', text: 'Besoins' }),
+    el('p', { class: 'soft', style: 'margin:16px 0 24px', text: 'Manquants des sacs : à acheter, puis à répartir par équipe.' }), statut, zone));
+  paintBanners();
+  try { const l = await authPost('getListes', {}); lsSet(cle, l); dessiner(l); }
+  catch (e) {
+    if (e.code === 'AUTH') return;
+    if (!cache) statut.replaceChildren(message('err', e.code === 'RESEAU' ? 'Pas de connexion : les listes ne peuvent pas être chargées.' : e.message));
+    else statut.replaceChildren(message('warn', 'Hors ligne : listes enregistrées sur ce téléphone, peut-être pas à jour.'));
+  }
+  flushQueue();
+}
+
+async function viewListe(id) {
+  const cle = 'sacs.liste.' + id;
+  let data = ls(cle, null), vue = null, horsLigne = false;
+  const entete = el('div'), corps = el('div'), barre = el('div', { class: 'barre' });
+  mount(enTete(), el('main', { class: 'page' }, entete, corps), barre);
+
+  const totaux = () => {
+    let lignes = 0, unites = 0, faites = 0;
+    data.ventilee.forEach(v => v.lignes.forEach(l => { lignes++; unites += l.quantite; if (l.reassorti) faites++; }));
+    return { lignes, unites, faites, articles: data.groupee.length };
+  };
+  function peindre() {
+    if (!data) return;
+    const st = data.liste.statut, t = totaux();
+    if (!vue) vue = st === 'À acheter' ? 'groupee' : 'ventilee';
+    entete.replaceChildren(
+      el('a', { class: 'retour', href: '#/besoins' }, ico('arrow-left'), 'Besoins'),
+      el('div', { class: 'filet' }), el('h1', { class: 'display titre-page', text: nomListe(id) }),
+      el('p', { style: 'margin:16px 0 0' }, badgeStatut(st)),
+      el('p', { class: 'petit soft', style: 'margin:8px 0 0', text: datesListe(data.liste) }),
+      ...(horsLigne ? [el('div', { style: 'margin-top:16px' }, message('warn', 'Hors ligne : liste enregistrée sur ce téléphone, peut-être pas à jour.'))] : []));
+
+    const contenu = [];
+    if (!t.lignes) {
+      contenu.push(el('div', { style: 'margin-top:24px' }, message('info', st === 'À acheter' ? 'Liste vide : plus aucun manquant à acheter.' : 'Cette liste ne contient aucune ligne.')));
+    } else {
+      contenu.push(el('div', { class: 'seg', role: 'group', 'aria-label': 'Affichage' },
+        el('button', { type: 'button', 'aria-pressed': String(vue === 'groupee'), onclick: () => { vue = 'groupee'; peindre(); } }, 'Par article'),
+        el('button', { type: 'button', 'aria-pressed': String(vue === 'ventilee'), onclick: () => { vue = 'ventilee'; peindre(); } }, 'Par équipe')));
+      if (vue === 'groupee') {
+        contenu.push(el('p', { class: 'petit soft', style: 'margin:16px 0' }, plur(t.articles, 'article', 'articles') + ' · ' + plur(t.unites, 'unité', 'unités') + ' à acheter.'),
+          el('ul', { class: 'lignes' }, data.groupee.map(a => el('li', { class: 'ligne-b' },
+            el('div', {},
+              el('span', { class: 'l-nom', text: a.libelle }),
+              el('span', { class: 'ean', text: a.ean ? 'EAN ' + String(a.ean) : 'EAN à renseigner' }),
+              el('span', { class: 'l-role', text: a.equipes.map(e => e.libelle + ' ×' + e.quantite).join(' · ') })),
+            el('span', { class: 'qte', 'aria-label': a.quantite_totale + ' à acheter', text: '×' + a.quantite_totale })))));
+      } else {
+        data.ventilee.forEach(v => {
+          const faites = v.lignes.filter(l => l.reassorti).length;
+          contenu.push(el('section', { 'aria-label': v.libelle },
+            el('div', { class: 'eq-tete' }, el('h2', { class: 'h3', text: v.libelle }),
+              el('span', { class: 'petit soft', text: (v.educateur ? v.educateur + ' · ' : '') + (st === 'À acheter' ? plur(v.lignes.length, 'ligne', 'lignes') : faites + '/' + v.lignes.length + ' réassorties') })),
+            el('ul', { class: 'lignes' }, v.lignes.map(l => el('li', { class: 'ligne-b' + (l.reassorti ? ' fait' : '') },
+              el('div', {}, el('span', { class: 'l-nom', text: l.libelle }), el('span', { class: 'l-role', text: 'À remettre : ×' + l.quantite })),
+              st === 'Acheté'
+                ? el('div', { class: 'reassort' }, el('span', { class: 'txt', text: l.reassorti ? 'Réassorti' : 'À réassortir' }),
+                    el('button', { class: 'sbtn', type: 'button', 'data-id': l.id_besoin, 'aria-pressed': String(l.reassorti), 'aria-label': 'Réassorti : ' + l.libelle + ', ' + v.libelle, onclick: () => basculer(l, !l.reassorti) }, ico('check')))
+                : (l.reassorti ? el('div', { class: 'reassort' }, el('span', { class: 'txt', text: 'Réassorti' }), ico('check', 24)) : null))))));
+        });
+      }
+    }
+    corps.replaceChildren(...contenu);
+
+    // Barre d'actions
+    if (st === 'Soldé') { barre.replaceChildren(el('div', { class: 'barre-in' }, el('div', { class: 'resume' }, 'Liste soldée', el('small', { text: t.lignes + ' lignes réassorties' })))); return; }
+    const aAcheter = st === 'À acheter';
+    const bouton = el('button', { class: 'btn primaire', type: 'button', 'aria-disabled': String(!t.lignes), onclick: aAcheter ? acheter : solder }, aAcheter ? 'Marquer comme acheté' : 'Solder la liste');
+    barre.replaceChildren(el('div', { class: 'barre-in' },
+      el('div', { class: 'resume' }, aAcheter ? plur(t.articles, 'article', 'articles') : t.faites + ' sur ' + t.lignes + ' réassorties', el('small', { text: aAcheter ? plur(t.unites, 'unité', 'unités') : plur(t.unites, 'unité', 'unités') + ' au total' })), bouton));
+  }
+  function acheter() {
+    const t = totaux(); if (!t.lignes) return;
+    dialogue({ titre: 'Marquer la liste comme achetée ?',
+      corps: [el('p', { text: plur(t.articles, 'article', 'articles') + ', ' + plur(t.unites, 'unité', 'unités') + '.' }), el('p', { class: 'soft', text: 'Les nouveaux manquants des sacs iront sur une nouvelle liste.' })],
+      ok: 'Marquer comme acheté', action: async () => { await authPost('acheterListe', { id_liste: id }); vue = 'ventilee'; await recharger(); } });
+  }
+  function solder() {
+    const t = totaux(); const reste = t.lignes - t.faites;
+    dialogue({ titre: 'Solder la liste ?',
+      corps: [reste ? message('warn', plur(reste, 'ligne n\'est pas cochée « réassorti » : elle sera soldée aussi.', 'lignes ne sont pas cochées « réassorti » : elles seront soldées aussi.'))
+        : el('p', { text: 'Toutes les lignes sont réassorties.' }), el('p', { class: 'soft', text: 'Une liste soldée ne peut plus être modifiée.' })],
+      ok: 'Solder la liste', action: async () => { await authPost('solderListe', { id_liste: id }); await recharger(); } });
+  }
+  async function basculer(l, valeur) {
+    const avant = l.reassorti; l.reassorti = valeur; peindre();
+    const refocus = () => { const b = corps.querySelector('[data-id="' + l.id_besoin + '"]'); if (b) b.focus({ preventScroll: true }); };
+    refocus();
+    try { await authPost('cocherReassort', { id_besoin: l.id_besoin, reassorti: valeur }); lsSet(cle, data); }
+    catch (e) { l.reassorti = avant; peindre(); refocus(); if (e.code !== 'AUTH') toast(RETRYABLE(e.code) ? 'Pas de connexion : la case n\'est pas enregistrée.' : e.message); }
+  }
+  async function recharger() {
+    try { data = await authPost('getListe', { id_liste: id }); lsSet(cle, data); horsLigne = false; peindre(); }
+    catch (e) {
+      if (e.code === 'AUTH') return;
+      if (RETRYABLE(e.code) && data) { horsLigne = true; peindre(); }
+      else if (!data) corps.replaceChildren(message('err', RETRYABLE(e.code) ? 'Pas de connexion et cette liste n\'a jamais été ouverte sur ce téléphone.' : e.message));
+      else throw e;
+    }
+  }
+  if (data) peindre(); else corps.replaceChildren(el('p', { class: 'soft', text: 'Chargement de la liste…' }));
+  await recharger();
+  focusTitre();
+}
+
+/* ======================================================================
    Routeur
    ====================================================================== */
 function route() {
@@ -673,6 +852,9 @@ function route() {
     case 'code': return viewCode();
     case 'pointage': return viewPointage(decodeURIComponent(arg || ''));
     case 'reglages': return viewReglages();
+    case 'besoins':
+      if (session.role !== 'intendant') { location.replace('#/equipes'); return; }
+      return arg ? viewListe(decodeURIComponent(arg)) : viewBesoins();
     default: return viewEquipes();
   }
 }

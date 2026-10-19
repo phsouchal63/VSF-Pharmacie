@@ -1,5 +1,5 @@
 /* Service worker — Sacs pharmacie VSF. Coque d'application en cache ; l'API Apps Script n'est jamais mise en cache. */
-const CACHE = 'sacs-vsf-v2';
+const CACHE = 'sacs-vsf-v3';
 const COQUE = ['./', 'index.html', 'manifest.webmanifest', 'assets/vsf-logo.png', 'assets/vsf-logo-white.svg', 'assets/icon-512.png'];
 
 self.addEventListener('install', e => {
