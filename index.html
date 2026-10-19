@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sacs pharmacie VSF</title>
+<meta name="description" content="Pointage du matériel des sacs pharmacie VSF Football après chaque rencontre.">
+<meta name="theme-color" content="#C00000" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E0E0E" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon-512.png">
+<link rel="apple-touch-icon" href="assets/icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* ---------- Tokens VSF v3 ---------- */
+:root{
+  --red-vif:#F80203; --red-action:#C00000; --red-medium:#D30600; --red-deep:#631214;
+  --ink:#0E0E0E; --ink-soft:#404040; --gray:#777777; --gray-line:#E0E0E0; --gray-bg:#F5F5F5;
+  --ok:#1B7A4B; --ok-bg:#EAF3ED; --warn:#8A5A00; --warn-bg:#FBF3E0;
+  --err:#7A1720; --err-bg:#F7EAEA; --info:#1F4E6B; --info-bg:#EAF1F6;
+  --bg:#FFFFFF; --surface:#FFFFFF; --raised:#FFFFFF; --alt:#F5F5F5;
+  --text:#0E0E0E; --text-soft:#404040; --line:#E0E0E0; --accent:#C00000; --field-line:#C0C0C0;
+  --shadow-1:0 1px 3px rgba(14,14,14,.10); --shadow-2:0 4px 12px rgba(14,14,14,.10); --shadow-4:0 16px 40px rgba(14,14,14,.20);
+  --f-display:'Anton',Impact,Haettenschweiler,sans-serif;
+  --f-body:'Barlow',Arial,sans-serif;
+  --f-cond:'Barlow Condensed','Arial Narrow',sans-serif;
+  --grad-cover:linear-gradient(135deg,#631214 0%,#D30600 100%);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0E0E0E; --surface:#1A1A1A; --raised:#242424; --alt:#1A1A1A;
+    --text:#F2F2F2; --text-soft:#A8A8A8; --line:#333333; --accent:#FF6B5B; --field-line:#555555;
+    /* États en mode sombre : la charte ne les définit pas, valeurs dérivées (AA sur surface) */
+    --ok:#6FCF97; --ok-bg:#12301F; --err:#E8A0A6; --err-bg:#3A1418; --info:#8EC1E0; --info-bg:#14293A; --warn:#E5B85C; --warn-bg:#3A2D0E;
+    --gray:#A8A8A8;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{flex:none;vertical-align:middle}
+
+/* ---------- Typographie ---------- */
+.display{font-family:var(--f-display);font-weight:400;text-transform:uppercase;letter-spacing:-.02em;line-height:.95;margin:0}
+.titre-page{font-size:clamp(44px,13vw,56px)}
+.h3{font-family:var(--f-cond);font-weight:600;font-size:22px;line-height:1.2;letter-spacing:.02em;text-transform:uppercase;margin:0}
+.etiq{font-family:var(--f-cond);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.soft{color:var(--text-soft)}
+.petit{font-size:14px;line-height:1.5}
+.filet{width:56px;height:4px;background:var(--red-vif);margin:0 0 16px}
+
+/* ---------- Structure ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--line);min-height:56px;padding-top:max(8px,env(safe-area-inset-top))}
+.top a.home{display:flex;align-items:center;min-height:44px;text-decoration:none}
+.logo{height:40px;width:auto;display:block}
+.logo-txt{font-family:var(--f-display);font-size:24px;color:var(--accent)}
+.top-user{display:flex;align-items:center;gap:8px;min-width:0}
+.who{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}
+.pill-off{display:none;align-items:center;gap:4px;font-family:var(--f-cond);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:999px;background:var(--warn-bg);color:var(--warn)}
+body.offline .pill-off{display:inline-flex}
+.page{max-width:640px;margin:0 auto;padding:24px 16px 40px}
+.btn-icon{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--text);cursor:pointer;text-decoration:none}
+.btn-icon:hover{background:var(--alt)}
+.retour{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:var(--accent);font-weight:600;text-decoration:none;margin-bottom:8px}
+
+/* ---------- Héros (connexion) ---------- */
+.hero{position:relative;overflow:hidden;background:var(--grad-cover);color:#fff;padding:24px 16px 40px;min-height:46vh;display:flex;flex-direction:column;justify-content:space-between;gap:48px}
+.hero-chevron{position:absolute;top:0;right:0;width:220px;height:220px;--vsf-dot:rgba(255,255,255,.9);background-image:radial-gradient(circle,var(--vsf-dot) 1.6px,transparent 1.7px);background-size:14px 14px;clip-path:polygon(50% 0,100% 42%,100% 100%,50% 58%,0 100%,0 42%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.15) 100%);mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.15) 100%);pointer-events:none}
+.hero-in{max-width:640px;width:100%;margin:0 auto;position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:48px;flex:1}
+.hero-logo{height:72px;width:auto;display:block}
+.hero-sub{font-size:18px;margin:16px 0 0;max-width:30ch}
+
+/* ---------- Formulaires ---------- */
+.champ{display:block;margin:0 0 16px}
+.champ>span{display:block;font-weight:600;font-size:14px;color:var(--text-soft);margin-bottom:8px}
+.champ>span b{color:var(--accent)}
+.champ input,.champ select{width:100%;min-height:48px;padding:12px;background:var(--surface);color:var(--text);border:1px solid var(--field-line);border-radius:4px}
+.champ input:focus,.champ select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(192,0,0,.15)}
+.champ input.code{font-size:28px;letter-spacing:.5em;text-align:center;font-family:var(--f-cond);font-weight:700}
+.aide{font-size:14px;color:var(--text-soft);margin:-8px 0 16px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 24px;border-radius:4px;border:2px solid transparent;font-weight:600;font-size:16px;cursor:pointer;text-decoration:none;transition:background-color .15s,transform .2s,box-shadow .2s}
+.btn.plein{width:100%}
+.btn.primaire{background:var(--red-action);color:#fff}
+.btn.primaire:hover{background:var(--red-medium);transform:translateY(-1px);box-shadow:var(--shadow-2)}
+.btn.primaire:active{background:var(--red-action);transform:scale(.98)}
+.btn.secondaire{background:transparent;border-color:var(--accent);color:var(--accent)}
+.btn.secondaire:hover{background:var(--alt)}
+.btn.secondaire:active{background:var(--red-action);color:#fff}
+.btn.tertiaire{background:none;color:var(--accent);text-decoration:underline;text-underline-offset:3px;padding:12px 8px}
+.btn[disabled],.btn[aria-disabled="true"]{background:#E0E0E0;border-color:#E0E0E0;color:#777;cursor:not-allowed;transform:none;box-shadow:none}
+@media (prefers-color-scheme: dark){.btn[disabled],.btn[aria-disabled="true"]{background:#333;border-color:#333;color:#A8A8A8}}
+
+/* ---------- Messages ---------- */
+.msg{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-left:4px solid;border-radius:0 4px 4px 0;margin:0 0 16px;font-size:15px}
+.msg.err{background:var(--err-bg);color:var(--err);border-color:var(--err)}
+.msg.ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.msg.info{background:var(--info-bg);color:var(--info);border-color:var(--info)}
+.msg.warn{background:var(--warn-bg);color:var(--warn);border-color:var(--warn)}
+.msg .btn{min-height:44px;padding:8px 16px}
+.msg-corps{flex:1}
+.msg-corps p{margin:0}
+
+/* ---------- Liste d'équipes ---------- */
+.liste{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.carte{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-1);text-decoration:none;color:var(--text);transition:box-shadow .2s,transform .2s}
+.carte:hover{box-shadow:0 8px 20px rgba(14,14,14,.14);transform:translateY(-4px)}
+.carte .nom{font-family:var(--f-cond);font-weight:700;font-size:28px;line-height:1.1;text-transform:uppercase;letter-spacing:.02em}
+.carte .meta{font-size:14px;color:var(--text-soft);margin-top:4px}
+
+/* ---------- Pointage ---------- */
+.entete-pointage{margin-bottom:24px}
+.progres{height:4px;background:var(--line);margin:16px 0 8px}
+.progres>i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s ease-out}
+.groupe{margin:32px 0 8px}
+.lignes{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ligne{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:12px 16px 12px 20px}
+.ligne::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gray)}
+.ligne[data-etat="ok"]::before{background:var(--ok)}
+.ligne[data-etat="ko"]::before{background:var(--err)}
+.ligne[data-etat="ko"]{background:var(--err-bg)}
+.l-nom{display:block;font-weight:600;font-size:17px;line-height:1.3}
+.l-role{display:block;font-size:14px;color:var(--text-soft)}
+.l-bas{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.l-statut{display:inline-flex;align-items:center;gap:6px;min-width:0;font-family:var(--f-cond);font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-soft)}
+.ligne[data-etat="ok"] .l-statut{color:var(--ok)}
+.ligne[data-etat="ko"] .l-statut{color:var(--err)}
+.ctrl{display:flex;align-items:center;gap:4px;flex:none}
+.sbtn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--field-line);background:var(--surface);color:var(--text);border-radius:4px;cursor:pointer;padding:0}
+.sbtn:hover{background:var(--alt)}
+.sbtn:active{transform:scale(.98)}
+.sbtn[disabled]{opacity:.4;cursor:not-allowed}
+.sbtn.complet{border-color:var(--ok);color:var(--ok)}
+.ligne[data-etat="ok"] .sbtn.complet{background:var(--ok);color:#fff}
+@media (prefers-color-scheme: dark){.ligne[data-etat="ok"] .sbtn.complet{color:#0E0E0E}}
+.l-val{min-width:48px;text-align:center;font-family:var(--f-cond);font-weight:700;font-size:22px}
+.barre{position:sticky;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 12px rgba(14,14,14,.08);padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+.barre-in{max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.barre .resume{font-weight:600;line-height:1.3}
+.barre .resume small{display:block;font-weight:400;color:var(--text-soft);font-size:14px}
+
+/* ---------- Confirmation ---------- */
+.voile{position:fixed;inset:0;z-index:20;background:rgba(14,14,14,.6);display:flex;align-items:flex-end;justify-content:center}
+.feuille{width:100%;max-width:640px;max-height:90vh;overflow:auto;background:var(--raised);border-radius:8px 8px 0 0;padding:24px 16px calc(24px + env(safe-area-inset-bottom));box-shadow:var(--shadow-4)}
+.feuille ul{margin:16px 0;padding:0;list-style:none;display:grid;gap:8px}
+.feuille li{display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid var(--line)}
+.feuille li b{font-family:var(--f-cond);font-size:20px;color:var(--err);white-space:nowrap}
+.actions{display:grid;gap:8px;margin-top:16px}
+
+/* ---------- Écran d'envoi ---------- */
+.badge-hex{width:96px;height:96px;display:flex;align-items:center;justify-content:center;background:var(--ok);color:#fff;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);margin:0 0 24px}
+.badge-hex.info{background:var(--info)}
+@media (prefers-color-scheme: dark){.badge-hex{color:#0E0E0E}}
+
+.toast{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 64px);z-index:30;max-width:480px;margin:0 auto;background:var(--ink);color:#fff;padding:12px 16px;border-radius:4px;box-shadow:var(--shadow-4);font-size:15px}
+@media (prefers-color-scheme: dark){.toast{background:#F2F2F2;color:#0E0E0E}}
+.sep{border:0;border-top:1px solid var(--line);margin:32px 0}
+.file-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.file-item .petit{margin:0}
+
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.carte:hover,.btn.primaire:hover{transform:none}}
+</style>
+</head>
+<body>
+<!-- Sprite d'icônes VSF (jeu de référence, filet 2px) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="vsf-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M4 12.5L9.5 18 20 6"></path></symbol>
+  <symbol id="vsf-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M12 4l10 16H2z"></path><path d="M12 10v4"></path><rect x="11" y="16.2" width="2" height="2" fill="currentColor" stroke="none"></rect></symbol>
+  <symbol id="vsf-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11.5v5.5"></path><rect x="11" y="7" width="2" height="2" fill="currentColor" stroke="none"></rect></symbol>
+  <symbol id="vsf-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M12 4v16M4 12h16"></path></symbol>
+  <symbol id="vsf-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M4 12h16"></path></symbol>
+  <symbol id="vsf-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M20 12H5M11 6l-6 6 6 6"></path></symbol>
+  <symbol id="vsf-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M9 6l6 6-6 6"></path></symbol>
+  <symbol id="vsf-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"></path></symbol>
+  <symbol id="vsf-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M12 20V8M7 13l5-5 5 5M4 4h16"></path></symbol>
+  <symbol id="vsf-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13"></path></symbol>
+  <symbol id="vsf-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7v5.5l4 2.5"></path></symbol>
+</svg>
+<div id="app"></div>
+<div id="live" class="sr-only" aria-live="polite" role="status"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ======================================================================
+   Configuration
+   ====================================================================== */
+const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbyzvsFHVvYzoNh0nc0xlObCOShzCVTK7ECZw3_SzZ_cUyvd5BAsSutIs1PV8keydqSl1A/exec';
+const VERSION = '2.0.0';
+const NS = 'http://www.w3.org/2000/svg';
+
+/* ======================================================================
+   Utilitaires
+   ====================================================================== */
+const ls = (k, def = null) => { try { const v = localStorage.getItem(k); return v === null ? def : JSON.parse(v); } catch { return def; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const lsDel = k => { try { localStorage.removeItem(k); } catch {} };
+const API_URL = (typeof localStorage !== 'undefined' && localStorage.getItem('sacs.api')) || DEFAULT_API;
+
+function el(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid == null || kid === false) continue;
+    e.append(kid.nodeType ? kid : document.createTextNode(kid));
+  }
+  return e;
+}
+function ico(name, size = 24) {
+  const s = document.createElementNS(NS, 'svg');
+  s.setAttribute('width', size); s.setAttribute('height', size); s.setAttribute('aria-hidden', 'true');
+  s.setAttribute('class', 'ico');
+  const u = document.createElementNS(NS, 'use'); u.setAttribute('href', '#vsf-' + name);
+  s.append(u); return s;
+}
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID()
+  : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }));
+function fmtDate(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(String(s || ''));
+  return m ? `${m[3]}/${m[2]} à ${m[4]}h${m[5]}` : '';
+}
+const plur = (n, un, plusieurs) => `${n} ${n > 1 ? plusieurs : un}`;
+const voirListe = () => { try { sessionStorage.setItem('sacs.liste', '1'); } catch {} };
+const listeVue = () => { try { return !!sessionStorage.getItem('sacs.liste'); } catch { return false; } };
+function annoncer(t) { const l = document.getElementById('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+let toastT;
+function toast(t) {
+  document.querySelectorAll('.toast').forEach(x => x.remove());
+  const n = el('div', { class: 'toast', role: 'status', text: t }); document.body.append(n);
+  clearTimeout(toastT); toastT = setTimeout(() => n.remove(), 3500);
+  annoncer(t);
+}
+
+/* ======================================================================
+   API
+   ====================================================================== */
+class ApiError extends Error { constructor(m, code) { super(m); this.code = code; } }
+const RETRYABLE = c => c === 'RESEAU' || c === 'SERVEUR';
+
+async function http(init) {
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 25000);
+  let r;
+  try { r = await fetch(API_URL, { ...init, signal: ctl.signal }); }
+  catch { throw new ApiError('Pas de connexion au serveur.', 'RESEAU'); }
+  finally { clearTimeout(t); }
+  let j;
+  try { j = await r.json(); }
+  catch { throw new ApiError("Le serveur n'a pas répondu comme prévu. Vérifier que l'application web est ouverte à « Tout le monde ».", 'SERVEUR'); }
+  if (!j.ok) throw new ApiError(j.erreur || 'Erreur du serveur.', j.code || 'ERR');
+  return j.data;
+}
+const post = payload => http({ method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+const getEducateurs = () => http({ method: 'GET' });
+
+/* ======================================================================
+   État
+   ====================================================================== */
+let session = ls('sacs.session');           // { token, id_educateur, nom, role, changer_code }
+const saveSession = () => session ? lsSet('sacs.session', session) : lsDel('sacs.session');
+const getQueue = () => ls('sacs.queue', []);
+const setQueue = q => lsSet('sacs.queue', q);
+
+async function authPost(action, payload) {
+  if (!session || !session.token) { goLogin('Connecte-toi pour continuer.'); throw new ApiError('Session absente', 'AUTH'); }
+  try { return await post({ action, token: session.token, ...payload }); }
+  catch (e) { if (e.code === 'AUTH') { session.token = null; saveSession(); goLogin('Session expirée : reconnecte-toi.'); } throw e; }
+}
+let loginMsg = '';
+function goLogin(msg) { loginMsg = msg || ''; if (location.hash !== '#/login') location.hash = '#/login'; else route(); }
+
+/* ======================================================================
+   File d'attente d'envoi (hors-ligne)
+   ====================================================================== */
+let flushing = false;
+async function flushQueue() {
+  if (flushing || !session || !session.token) return;
+  flushing = true;
+  try {
+    for (const it of getQueue()) {
+      if (it.id_educateur !== session.id_educateur) continue;
+      try {
+        await post({ action: 'enregistrerPointage', token: session.token, id_equipe: it.id_equipe, id_saisie: it.id_saisie, lignes: it.lignes });
+        setQueue(getQueue().filter(x => x.id_saisie !== it.id_saisie));
+      } catch (e) {
+        if (RETRYABLE(e.code)) break;
+        if (e.code === 'AUTH') { session.token = null; saveSession(); goLogin('Session expirée : reconnecte-toi pour envoyer les pointages en attente.'); break; }
+        setQueue(getQueue().map(x => x.id_saisie === it.id_saisie ? { ...x, erreur: e.message } : x));
+      }
+    }
+  } finally { flushing = false; paintBanners(); }
+}
+function mesEnvois() { return session ? getQueue().filter(x => x.id_educateur === session.id_educateur) : []; }
+
+/* ======================================================================
+   Gabarit commun
+   ====================================================================== */
+const app = document.getElementById('app');
+function mount(...nodes) { app.replaceChildren(...nodes.flat().filter(Boolean)); window.scrollTo(0, 0); }
+function focusTitre() { const h = app.querySelector('h1'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); } }
+
+function enTete() {
+  const logo = el('img', { class: 'logo', src: 'assets/vsf-logo.png', alt: 'VSF Football', height: '40' });
+  logo.addEventListener('error', () => logo.replaceWith(el('span', { class: 'logo-txt', text: 'VSF' })));
+  return el('header', { class: 'top' },
+    el('a', { class: 'home', href: '#/equipes', 'aria-label': 'Accueil, mes équipes', onclick: voirListe }, logo),
+    el('div', { class: 'top-user' },
+      el('span', { class: 'pill-off' }, ico('alert', 16), 'Hors ligne'),
+      session ? el('span', { class: 'who', text: session.nom }) : null,
+      session ? el('a', { class: 'btn-icon', href: '#/reglages', 'aria-label': 'Réglages' }, ico('settings')) : null));
+}
+function message(type, texte, ...extra) {
+  const icone = { err: 'alert', warn: 'alert', info: 'info', ok: 'check' }[type];
+  return el('div', { class: 'msg ' + type, role: type === 'err' ? 'alert' : 'status' }, ico(icone, 24), el('div', { class: 'msg-corps' }, el('p', { text: texte }), ...extra));
+}
+let banniere;
+function bandeauEnvois() {
+  banniere = el('div', { id: 'bandeau-envois' });
+  paintBanners();
+  return banniere;
+}
+function paintBanners() {
+  const b = document.getElementById('bandeau-envois'); if (!b) return;
+  const n = mesEnvois().length;
+  b.replaceChildren();
+  if (!n) return;
+  const bouton = el('button', { class: 'btn secondaire', type: 'button', onclick: async e => { e.target.disabled = true; await flushQueue(); paintBanners(); } }, ico('upload', 24), 'Envoyer');
+  b.append(el('div', { class: 'msg warn', role: 'status' }, ico('clock', 24),
+    el('div', { class: 'msg-corps' }, el('p', { text: `${plur(n, 'pointage en attente', 'pointages en attente')} d'envoi.` }), el('div', { style: 'margin-top:8px' }, bouton))));
+}
+
+/* ======================================================================
+   Vue : connexion
+   ====================================================================== */
+function viewLogin() {
+  const logo = el('img', { class: 'hero-logo', src: 'assets/vsf-logo-white.svg', alt: 'VSF Football' });
+  logo.addEventListener('error', () => logo.replaceWith(el('span', { class: 'logo-txt', style: 'color:#fff;font-size:40px', text: 'VSF' })));
+  const hero = el('section', { class: 'hero' }, el('div', { class: 'hero-chevron', 'aria-hidden': 'true' }),
+    el('div', { class: 'hero-in' }, logo,
+      el('div', {}, el('h1', { class: 'display titre-page', text: 'Sacs pharmacie' }), el('p', { class: 'hero-sub', text: 'Pointage du matériel après chaque rencontre.' }))));
+
+  const select = el('select', { id: 'edu', required: true, 'aria-describedby': 'login-err' });
+  const pin = el('input', { id: 'pin', class: 'code', type: 'password', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '6', autocomplete: 'current-password', placeholder: '••••••', 'aria-label': 'Code personnel à 6 chiffres' });
+  const erreurs = el('div', { id: 'login-err' });
+  const bouton = el('button', { class: 'btn primaire plein', type: 'submit' }, 'Se connecter');
+  const dernier = (session && session.id_educateur) || ls('sacs.dernier');
+
+  function remplir(liste) {
+    const choix = select.value || dernier || '';
+    select.replaceChildren(el('option', { value: '', text: 'Choisir mon nom' }),
+      ...liste.map(e => el('option', { value: e.id_educateur, text: e.nom })));
+    select.value = liste.some(e => e.id_educateur === choix) ? choix : '';
+  }
+  remplir(ls('sacs.educateurs', []));
+  getEducateurs().then(d => { lsSet('sacs.educateurs', d.educateurs); remplir(d.educateurs); })
+    .catch(e => { if (!ls('sacs.educateurs', []).length) erreurs.replaceChildren(message('err', e.code === 'RESEAU' ? 'Pas de connexion : la liste des éducateurs ne peut pas être chargée.' : e.message)); });
+
+  const form = el('form', { class: 'page', novalidate: true },
+    loginMsg ? message('info', loginMsg) : null, erreurs,
+    el('label', { class: 'champ' }, el('span', {}, 'Nom ', el('b', { text: '*' })), select),
+    el('label', { class: 'champ' }, el('span', {}, 'Code personnel ', el('b', { text: '*' })), pin),
+    bouton);
+  loginMsg = '';
+  form.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    erreurs.replaceChildren();
+    if (!select.value) { erreurs.append(message('err', 'Choisir ton nom dans la liste.')); select.focus(); return; }
+    if (!/^\d{6}$/.test(pin.value)) { erreurs.append(message('err', 'Le code comporte 6 chiffres.')); pin.focus(); return; }
+    bouton.disabled = true; bouton.textContent = 'Connexion…';
+    try {
+      const r = await post({ action: 'login', id_educateur: select.value, code: pin.value });
+      session = { token: r.token, id_educateur: r.id_educateur, nom: r.nom, role: r.role, changer_code: r.changer_code };
+      saveSession(); lsSet('sacs.dernier', r.id_educateur); try { sessionStorage.removeItem('sacs.liste'); } catch {}
+      location.hash = r.changer_code ? '#/code' : '#/equipes';
+      flushQueue();
+    } catch (e) {
+      erreurs.replaceChildren(message('err', e.code === 'RESEAU' ? 'Pas de connexion. Réessayer avec du réseau.' : e.message));
+      pin.value = ''; pin.focus(); bouton.disabled = false; bouton.textContent = 'Se connecter';
+    }
+  });
+  mount(hero, form);
+}
+
+/* ======================================================================
+   Vue : changement de code
+   ====================================================================== */
+function viewCode() {
+  const force = session.changer_code;
+  const f = (id, lib, ac) => el('input', { id, class: 'code', type: 'password', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '6', autocomplete: ac, placeholder: '••••••', 'aria-label': lib });
+  const ancien = f('ancien', 'Code actuel', 'current-password'), nouveau = f('nouveau', 'Nouveau code', 'new-password'), conf = f('conf', 'Confirmer le nouveau code', 'new-password');
+  const erreurs = el('div'); const bouton = el('button', { class: 'btn primaire plein', type: 'submit' }, 'Enregistrer mon code');
+  const form = el('form', { novalidate: true },
+    force ? message('info', 'Premier accès : remplace le code provisoire (000000) par un code personnel à 6 chiffres.') : null, erreurs,
+    el('label', { class: 'champ' }, el('span', {}, force ? 'Code provisoire' : 'Code actuel'), ancien),
+    el('label', { class: 'champ' }, el('span', {}, 'Nouveau code (6 chiffres)'), nouveau),
+    el('label', { class: 'champ' }, el('span', {}, 'Confirmer le nouveau code'), conf), bouton);
+  form.addEventListener('submit', async ev => {
+    ev.preventDefault(); erreurs.replaceChildren();
+    const bad = m => { erreurs.append(message('err', m)); };
+    if (!/^\d{6}$/.test(ancien.value)) return bad('Le code actuel comporte 6 chiffres.');
+    if (!/^\d{6}$/.test(nouveau.value)) return bad('Le nouveau code doit comporter 6 chiffres.');
+    if (nouveau.value === '000000') return bad('Choisir un code différent de 000000.');
+    if (nouveau.value !== conf.value) return bad('Les deux nouveaux codes sont différents.');
+    bouton.disabled = true; bouton.textContent = 'Enregistrement…';
+    try {
+      await authPost('changerCode', { ancien: ancien.value, nouveau: nouveau.value });
+      session.changer_code = false; saveSession(); toast('Code modifié.');
+      location.hash = '#/equipes';
+    } catch (e) {
+      if (e.code !== 'AUTH') { bad(e.code === 'RESEAU' ? 'Pas de connexion. Réessayer avec du réseau.' : e.message); bouton.disabled = false; bouton.textContent = 'Enregistrer mon code'; }
+    }
+  });
+  mount(enTete(), el('main', { class: 'page' },
+    force ? null : el('a', { class: 'retour', href: '#/reglages' }, ico('arrow-left'), 'Réglages'),
+    el('div', { class: 'filet' }), el('h1', { class: 'display titre-page', text: 'Mon code' }), el('div', { style: 'height:24px' }), form));
+}
+
+/* ======================================================================
+   Vue : mes équipes
+   ====================================================================== */
+async function viewEquipes() {
+  const cle = 'sacs.equipes.' + session.id_educateur;
+  const zone = el('ul', { class: 'liste' });
+  const statut = el('div');
+  function dessiner(liste) {
+    zone.replaceChildren(...liste.map(e => el('li', {}, el('a', { class: 'carte', href: '#/pointage/' + encodeURIComponent(e.id_equipe) },
+      el('div', {}, el('div', { class: 'nom', text: e.libelle }),
+        el('div', { class: 'meta', text: (e.educateur || 'Éducateur non affecté') + ' · ' + (e.derniere_saisie ? 'Dernier pointage ' + fmtDate(e.derniere_saisie) : 'Jamais pointé') })),
+      ico('chevron-right', 32)))));
+    if (!liste.length) statut.replaceChildren(message('info', "Aucune équipe active ne t'est affectée. Demander à l'intendant de renseigner l'onglet Equipes."));
+    else statut.replaceChildren();
+  }
+  const cache = ls(cle, null);
+  const direct = l => l && l.length === 1 && session.role !== 'intendant' && !listeVue();
+  if (direct(cache)) { location.replace('#/pointage/' + encodeURIComponent(cache[0].id_equipe)); return; }
+  if (cache) dessiner(cache);
+  mount(enTete(), el('main', { class: 'page' }, bandeauEnvois(),
+    el('div', { class: 'filet' }), el('h1', { class: 'display titre-page', text: 'Mes équipes' }), el('div', { style: 'height:24px' }), statut, zone));
+  paintBanners();
+  try {
+    const liste = await authPost('getEquipes', {});
+    lsSet(cle, liste);
+    if (direct(liste)) { location.replace('#/pointage/' + encodeURIComponent(liste[0].id_equipe)); return; }
+    dessiner(liste);
+  } catch (e) {
+    if (e.code === 'AUTH') return;
+    if (!cache) statut.replaceChildren(message('err', e.code === 'RESEAU' ? 'Pas de connexion : la liste des équipes ne peut pas être chargée.' : e.message));
+  }
+  flushQueue();
+}
+
+/* ======================================================================
+   Vue : pointage
+   ====================================================================== */
+async function viewPointage(idEquipe) {
+  const cleT = 'sacs.trousse.' + idEquipe, cleD = 'sacs.draft.' + idEquipe;
+  let trousse = ls(cleT, null);
+  let draft = ls(cleD, null) || { id_saisie: uuid(), q: {} };
+  const rows = new Map();
+  const conteneur = el('main', { class: 'page' });
+  const barre = el('div', { class: 'barre' });
+  const aff = el('div', { id: 'zone-pointage' });
+  mount(enTete(), conteneur, barre);
+
+  const sauver = () => lsSet(cleD, draft);
+  const etat = l => { const q = draft.q[l.code_article]; return q == null ? 'todo' : (q >= l.cible ? 'ok' : 'ko'); };
+  const compte = () => {
+    const L = trousse.lignes; let fait = 0, manque = 0, lignesManque = 0;
+    L.forEach(l => { const q = draft.q[l.code_article]; if (q != null) { fait++; if (q < l.cible) { manque += l.cible - q; lignesManque++; } } });
+    return { total: L.length, fait, reste: L.length - fait, manque, lignesManque };
+  };
+
+  function peindreLigne(l) {
+    const r = rows.get(l.code_article); if (!r) return;
+    const q = draft.q[l.code_article], e = etat(l);
+    r.li.dataset.etat = e;
+    r.val.textContent = (q == null ? '–' : q) + '/' + l.cible;
+    r.stat.replaceChildren(ico(e === 'ok' ? 'check' : e === 'ko' ? 'alert' : 'clock', 18),
+      e === 'ok' ? 'Complet' : e === 'ko' ? 'Manque ' + (l.cible - q) : 'À vérifier');
+    r.moins.disabled = q === 0;
+    r.plus.disabled = q != null && q >= l.cible;
+    r.ok.setAttribute('aria-pressed', String(e === 'ok'));
+  }
+  function peindreBarre(annonce) {
+    const c = compte();
+    const resume = el('div', { class: 'resume' },
+      c.reste ? plur(c.reste, 'ligne à vérifier', 'lignes à vérifier') : (c.manque ? plur(c.manque, 'manquant', 'manquants') : 'Aucun manquant'),
+      el('small', { text: c.fait + ' sur ' + c.total + ' vérifiées' + (c.reste && c.manque ? ' · ' + plur(c.manque, 'manquant', 'manquants') : '') }));
+    const bouton = el('button', { class: 'btn primaire', type: 'button', 'aria-disabled': String(c.reste > 0), onclick: valider }, 'Valider le pointage');
+    barre.replaceChildren(el('div', { class: 'barre-in' }, resume, bouton));
+    const p = document.getElementById('progres'); if (p) { p.style.width = (100 * c.fait / c.total) + '%'; p.parentNode.setAttribute('aria-valuenow', String(c.fait)); }
+    const pr = document.getElementById('progres-txt'); if (pr) pr.textContent = c.fait + ' / ' + c.total;
+    if (annonce) annoncer(c.reste ? plur(c.reste, 'ligne reste', 'lignes restent') + ' à vérifier.' : 'Toutes les lignes sont vérifiées.');
+    const bt = document.getElementById('btn-reste'); if (bt) { bt.hidden = !c.reste; bt.textContent = c.fait ? 'Le reste est complet' : 'Tout est complet'; }
+  }
+  function regler(l, valeur) {
+    draft.q[l.code_article] = Math.max(0, Math.min(l.cible, valeur));
+    sauver(); peindreLigne(l); peindreBarre(false);
+  }
+  function construireLigne(l) {
+    const nom = l.libelle;
+    const moins = el('button', { class: 'sbtn', type: 'button', 'aria-label': 'Un de moins : ' + nom, onclick: () => { const q = draft.q[l.code_article]; regler(l, (q == null ? l.cible : q) - 1); } }, ico('minus'));
+    const plus = el('button', { class: 'sbtn', type: 'button', 'aria-label': 'Un de plus : ' + nom, onclick: () => { const q = draft.q[l.code_article]; regler(l, (q == null ? l.cible : q) + 1); } }, ico('plus'));
+    const ok = el('button', { class: 'sbtn complet', type: 'button', 'aria-label': 'Complet : ' + nom, onclick: () => regler(l, l.cible) }, ico('check'));
+    const val = el('span', { class: 'l-val', 'aria-hidden': 'true' });
+    const stat = el('span', { class: 'l-statut' });
+    const li = el('li', { class: 'ligne' },
+      el('span', { class: 'l-nom', text: nom }), el('span', { class: 'l-role', text: l.role || '' }),
+      el('div', { class: 'l-bas' }, stat, el('div', { class: 'ctrl' }, moins, val, plus, ok)));
+    rows.set(l.code_article, { li, val, stat, moins, plus, ok });
+    return li;
+  }
+  function valider() {
+    const c = compte();
+    if (c.reste) {
+      const premier = trousse.lignes.find(l => etat(l) === 'todo');
+      const r = rows.get(premier.code_article);
+      r.li.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      r.ok.focus({ preventScroll: true });
+      toast(plur(c.reste, 'ligne reste', 'lignes restent') + ' à vérifier avant de valider.');
+      return;
+    }
+    confirmer();
+  }
+  function confirmer() {
+    const manquants = trousse.lignes.filter(l => draft.q[l.code_article] < l.cible).map(l => ({ libelle: l.libelle, manque: l.cible - draft.q[l.code_article] }));
+    const zoneErr = el('div');
+    const envoyer = el('button', { class: 'btn primaire plein', type: 'button' }, 'Envoyer');
+    const corriger = el('button', { class: 'btn secondaire plein', type: 'button' }, 'Corriger');
+    const feuille = el('div', { class: 'feuille', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'dlg-titre' },
+      el('h2', { class: 'h3', id: 'dlg-titre', text: 'Confirmer le pointage' }),
+      el('p', { class: 'soft', text: trousse.libelle + (manquants.length ? ' · ' + plur(manquants.length, 'article manquant', 'articles manquants') : '') }),
+      manquants.length ? el('ul', {}, manquants.map(m => el('li', {}, el('span', { text: m.libelle }), el('b', { text: '−' + m.manque }))))
+        : message('ok', 'Sac complet : rien à commander.'),
+      zoneErr, el('div', { class: 'actions' }, envoyer, corriger));
+    const voile = el('div', { class: 'voile' }, feuille);
+    const fermer = () => { voile.remove(); };
+    corriger.addEventListener('click', fermer);
+    voile.addEventListener('keydown', ev => { if (ev.key === 'Escape') fermer(); });
+    envoyer.addEventListener('click', async () => {
+      envoyer.disabled = true; corriger.disabled = true; envoyer.textContent = 'Envoi…'; zoneErr.replaceChildren();
+      const lignes = trousse.lignes.map(l => ({ code_article: l.code_article, quantite_constatee: draft.q[l.code_article] }));
+      const item = { id_saisie: draft.id_saisie, id_equipe: idEquipe, id_educateur: session.id_educateur, lignes, equipe: trousse.libelle, date: new Date().toISOString() };
+      try {
+        await post({ action: 'enregistrerPointage', token: session.token, id_equipe: idEquipe, id_saisie: item.id_saisie, lignes });
+        lsDel(cleD); fermer(); viewEnvoye({ equipe: trousse.libelle, manquants, hors_ligne: false });
+      } catch (e) {
+        if (RETRYABLE(e.code) || e.code === 'AUTH') {
+          setQueue([...getQueue().filter(x => x.id_saisie !== item.id_saisie), item]);
+          lsDel(cleD); fermer();
+          if (e.code === 'AUTH') { session.token = null; saveSession(); goLogin('Session expirée : reconnecte-toi, le pointage sera envoyé ensuite.'); return; }
+          viewEnvoye({ equipe: trousse.libelle, manquants, hors_ligne: true });
+        } else {
+          zoneErr.replaceChildren(message('err', e.message));
+          envoyer.disabled = false; corriger.disabled = false; envoyer.textContent = 'Envoyer';
+        }
+      }
+    });
+    document.body.append(voile); envoyer.focus();
+  }
+
+  function dessiner() {
+    rows.clear();
+    const groupes = [['Tronc commun', 'Tronc commun'], ['Spécifique', 'Équipements spécifiques']];
+    const sections = groupes.map(([g, titre]) => {
+      const L = trousse.lignes.filter(l => (l.groupe || 'Spécifique') === g);
+      return L.length ? el('section', { 'aria-label': titre }, el('h2', { class: 'h3 groupe', text: titre }), el('ul', { class: 'lignes' }, L.map(construireLigne))) : null;
+    });
+    const resteBtn = el('button', { id: 'btn-reste', class: 'btn secondaire plein', type: 'button', onclick: () => { trousse.lignes.forEach(l => { if (draft.q[l.code_article] == null) draft.q[l.code_article] = l.cible; }); sauver(); trousse.lignes.forEach(peindreLigne); peindreBarre(true); } });
+    aff.replaceChildren(
+      el('div', { class: 'progres', role: 'progressbar', 'aria-label': 'Lignes vérifiées', 'aria-valuemin': '0', 'aria-valuemax': String(trousse.lignes.length) }, el('i', { id: 'progres' })),
+      el('p', { class: 'petit soft', style: 'margin:0 0 16px' }, el('span', { id: 'progres-txt' }), ' lignes vérifiées'),
+      resteBtn, ...sections);
+    trousse.lignes.forEach(peindreLigne); peindreBarre(false);
+  }
+  function entete() {
+    return el('div', { class: 'entete-pointage' },
+      (ls('sacs.equipes.' + session.id_educateur, []) || []).length > 1 || session.role === 'intendant'
+        ? el('a', { class: 'retour', href: '#/equipes', onclick: voirListe }, ico('arrow-left'), 'Mes équipes') : null,
+      el('div', { class: 'filet' }), el('h1', { class: 'display titre-page', text: trousse.libelle }),
+      el('p', { class: 'soft', style: 'margin:8px 0 0', text: trousse.derniere_saisie ? 'Dernier pointage ' + fmtDate(trousse.derniere_saisie) : 'Aucun pointage enregistré' }));
+  }
+  function tout() {
+    conteneur.replaceChildren(bandeauEnvois(), entete(), aff);
+    dessiner(); paintBanners(); focusTitre();
+  }
+
+  if (trousse) tout();
+  else { conteneur.replaceChildren(el('p', { class: 'soft', text: 'Chargement du sac…' })); barre.replaceChildren(); }
+
+  try {
+    const frais = await authPost('getTrousse', { id_equipe: idEquipe });
+    const change = !trousse || JSON.stringify(trousse.lignes.map(l => [l.code_article, l.cible])) !== JSON.stringify(frais.lignes.map(l => [l.code_article, l.cible]));
+    trousse = { ...frais }; lsSet(cleT, trousse);
+    const valides = new Set(trousse.lignes.map(l => l.code_article));
+    Object.keys(draft.q).forEach(k => { if (!valides.has(k)) delete draft.q[k]; });
+    if (change || !rows.size) tout();
+    flushQueue();
+  } catch (e) {
+    if (e.code === 'AUTH') return;
+    if (!trousse) conteneur.replaceChildren(message('err', e.code === 'RESEAU'
+      ? "Pas de connexion et ce sac n'a jamais été ouvert sur ce téléphone. Ouvrir l'équipe une première fois avec du réseau."
+      : e.message), el('a', { class: 'retour', href: '#/equipes' }, ico('arrow-left'), 'Mes équipes'));
+  }
+}
+
+/* ======================================================================
+   Vue : pointage envoyé
+   ====================================================================== */
+function viewEnvoye({ equipe, manquants, hors_ligne }) {
+  const n = manquants.reduce((s, m) => s + m.manque, 0);
+  mount(enTete(), el('main', { class: 'page' },
+    el('div', { class: 'badge-hex' + (hors_ligne ? ' info' : ''), 'aria-hidden': 'true' }, ico(hors_ligne ? 'clock' : 'check', 48)),
+    el('h1', { class: 'display titre-page', text: hors_ligne ? 'Gardé sur le téléphone' : 'Pointage envoyé' }),
+    el('p', { style: 'font-size:18px;margin:16px 0 24px' },
+      hors_ligne ? 'Pas de réseau : le pointage ' + equipe + ' part automatiquement au retour de la connexion.'
+        : equipe + ' · ' + (n ? plur(n, 'manquant transmis', 'manquants transmis') + " à l'intendant." : 'sac complet, rien à commander.')),
+    el('a', { class: 'btn primaire plein', href: '#/equipes', onclick: () => voirListe() }, 'Retour à mes équipes')));
+  focusTitre(); annoncer(hors_ligne ? 'Pointage gardé sur le téléphone.' : 'Pointage envoyé.');
+}
+
+/* ======================================================================
+   Vue : réglages
+   ====================================================================== */
+function viewReglages() {
+  const q = mesEnvois();
+  const file = q.length ? el('div', {}, q.map(it => el('div', { class: 'file-item' },
+    el('div', {}, el('strong', { text: it.equipe || it.id_equipe }), el('p', { class: 'petit soft', text: fmtDate(it.date.replace('T', ' ')) }),
+      it.erreur ? el('p', { class: 'petit', style: 'color:var(--err)', text: 'Refusé : ' + it.erreur }) : null),
+    el('button', { class: 'btn-icon', type: 'button', 'aria-label': 'Supprimer ce pointage en attente', onclick: () => { if (confirm('Supprimer ce pointage en attente ? Il ne sera pas envoyé.')) { setQueue(getQueue().filter(x => x.id_saisie !== it.id_saisie)); viewReglages(); } } }, ico('trash')))))
+    : el('p', { class: 'soft', text: 'Aucun envoi en attente.' });
+  mount(enTete(), el('main', { class: 'page' },
+    el('a', { class: 'retour', href: '#/equipes' }, ico('arrow-left'), 'Mes équipes'),
+    el('div', { class: 'filet' }), el('h1', { class: 'display titre-page', text: 'Réglages' }),
+    el('p', { class: 'soft', style: 'margin:16px 0 0', text: session.nom + ' · ' + (session.role === 'intendant' ? 'Intendant' : 'Éducateur') }),
+    el('h2', { class: 'h3', style: 'margin-top:32px', text: 'Code personnel' }),
+    el('p', { class: 'soft', text: 'Code à 6 chiffres, utilisé à chaque connexion.' }),
+    el('a', { class: 'btn secondaire', href: '#/code' }, 'Changer mon code'),
+    el('hr', { class: 'sep' }),
+    el('h2', { class: 'h3', text: 'Envois en attente' }), file,
+    q.length ? el('div', { style: 'margin-top:16px' }, el('button', { class: 'btn primaire', type: 'button', onclick: async e => { e.target.disabled = true; await flushQueue(); viewReglages(); } }, ico('upload'), 'Envoyer maintenant')) : null,
+    el('hr', { class: 'sep' }),
+    el('button', { class: 'btn secondaire', type: 'button', onclick: () => { session = null; saveSession(); location.hash = '#/login'; } }, 'Se déconnecter'),
+    el('p', { class: 'petit soft', style: 'margin-top:32px', text: 'Sacs pharmacie VSF · version ' + VERSION })));
+  focusTitre();
+}
+
+/* ======================================================================
+   Routeur
+   ====================================================================== */
+function route() {
+  document.querySelectorAll('.voile').forEach(v => v.remove());
+  const h = (location.hash || '#/').slice(1);
+  const [, r, arg] = h.split('/');
+  if (!session || !session.token) { if (r !== 'login') { location.replace('#/login'); return; } return viewLogin(); }
+  if (session.changer_code && r !== 'code' && r !== 'login') { location.replace('#/code'); return; }
+  switch (r) {
+    case 'login': location.replace('#/equipes'); return;
+    case 'code': return viewCode();
+    case 'pointage': return viewPointage(decodeURIComponent(arg || ''));
+    case 'reglages': return viewReglages();
+    default: return viewEquipes();
+  }
+}
+window.addEventListener('hashchange', route);
+const reseau = () => { document.body.classList.toggle('offline', !navigator.onLine); };
+window.addEventListener('online', () => { reseau(); flushQueue(); });
+window.addEventListener('offline', reseau);
+reseau();
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+route();
+})();
+</script>
+</body>
+</html>

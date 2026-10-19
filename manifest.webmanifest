@@ -1,0 +1,15 @@
+{
+  "name": "Sacs pharmacie VSF",
+  "short_name": "Sacs VSF",
+  "description": "Pointage du matériel des sacs pharmacie VSF Football après chaque rencontre.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#C00000",
+  "icons": [
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
