@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Sacs pharmacie VSF</title>
-<meta name="description" content="Pointage du matériel des sacs pharmacie VSF Football après chaque rencontre.">
+<title>VSF PHARM</title>
+<meta name="description" content="VSF PHARM : pointage du matériel des sacs pharmacie de VSF Football après chaque rencontre.">
 <meta name="theme-color" content="#C00000" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0E0E0E" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="assets/icon-512.png">
-<link rel="apple-touch-icon" href="assets/icon-512.png">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
@@ -73,9 +73,9 @@ body.offline .pill-off{display:inline-flex}
 
 /* ---------- Héros (connexion) ---------- */
 .hero{position:relative;overflow:hidden;background:var(--grad-cover);color:#fff;padding:24px 16px 40px;min-height:46vh;display:flex;flex-direction:column;justify-content:space-between;gap:48px}
-.hero-chevron{position:absolute;top:0;right:0;width:220px;height:220px;--vsf-dot:rgba(255,255,255,.9);background-image:radial-gradient(circle,var(--vsf-dot) 1.6px,transparent 1.7px);background-size:14px 14px;clip-path:polygon(50% 0,100% 42%,100% 100%,50% 58%,0 100%,0 42%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.15) 100%);mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.15) 100%);pointer-events:none}
+.hero-croix{position:absolute;top:-80px;right:-8px;width:294px;height:294px;background-image:radial-gradient(circle,rgba(255,255,255,.9) 1.6px,transparent 1.7px);background-size:14px 14px;clip-path:polygon(98px 0,196px 0,196px 98px,294px 98px,294px 196px,196px 196px,196px 294px,98px 294px,98px 196px,0 196px,0 98px,98px 98px);-webkit-mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.15) 100%);mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.15) 100%);pointer-events:none}
 .hero-in{max-width:640px;width:100%;margin:0 auto;position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:48px;flex:1}
-.hero-logo{height:72px;width:auto;display:block}
+.hero-logo{height:120px;width:auto;display:block;align-self:flex-start}
 .hero-sub{font-size:18px;margin:16px 0 0;max-width:30ch}
 
 /* ---------- Formulaires ---------- */
@@ -302,7 +302,7 @@ body.offline .pill-off{display:inline-flex}
    Configuration
    ====================================================================== */
 const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbyzvsFHVvYzoNh0nc0xlObCOShzCVTK7ECZw3_SzZ_cUyvd5BAsSutIs1PV8keydqSl1A/exec';
-const VERSION = '5.0.0';
+const VERSION = '5.1.0';
 const NS = 'http://www.w3.org/2000/svg';
 
 /* ======================================================================
@@ -462,9 +462,9 @@ function paintBanners() {
 function viewLogin() {
   const logo = el('img', { class: 'hero-logo', src: 'assets/vsf-logo-white.svg', alt: 'VSF Football' });
   logo.addEventListener('error', () => logo.replaceWith(el('span', { class: 'logo-txt', style: 'color:#fff;font-size:40px', text: 'VSF' })));
-  const hero = el('section', { class: 'hero' }, el('div', { class: 'hero-chevron', 'aria-hidden': 'true' }),
+  const hero = el('section', { class: 'hero' }, el('div', { class: 'hero-croix', 'aria-hidden': 'true' }),
     el('div', { class: 'hero-in' }, logo,
-      el('div', {}, el('h1', { class: 'display titre-page', text: 'Sacs pharmacie' }), el('p', { class: 'hero-sub', text: 'Pointage du matériel après chaque rencontre.' }))));
+      el('div', {}, el('h1', { class: 'display titre-page', text: 'VSF PHARM' }), el('p', { class: 'hero-sub', text: 'Pointage du matériel après chaque rencontre.' }))));
 
   const select = el('select', { id: 'edu', required: true, 'aria-describedby': 'login-err' });
   const pin = el('input', { id: 'pin', class: 'code', type: 'password', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '6', autocomplete: 'current-password', placeholder: '••••••', 'aria-label': 'Code personnel à 6 chiffres' });
@@ -768,7 +768,7 @@ function viewReglages() {
     q.length ? el('div', { style: 'margin-top:16px' }, el('button', { class: 'btn primaire', type: 'button', onclick: async e => { e.target.disabled = true; await flushQueue(); viewReglages(); } }, ico('upload'), 'Envoyer maintenant')) : null,
     el('hr', { class: 'sep' }),
     el('button', { class: 'btn secondaire', type: 'button', onclick: () => { session = null; saveSession(); location.hash = '#/login'; } }, 'Se déconnecter'),
-    el('p', { class: 'petit soft', style: 'margin-top:32px', text: 'Sacs pharmacie VSF · version ' + VERSION })));
+    el('p', { class: 'petit soft', style: 'margin-top:32px', text: 'VSF PHARM · version ' + VERSION })));
   focusTitre();
 }
 
@@ -1217,7 +1217,7 @@ async function viewBon(id) {
       el('div', { class: 'bon-infos' },
         el('div', { class: 'bon-encadre' }, el('span', { class: 'etiq', text: 'Émetteur' }),
           el('div', {}, el('b', { text: 'VSF Football' }), ' · La Ferté-Bernard'),
-          el('div', { text: 'Sacs pharmacie du club' }),
+          el('div', { text: 'VSF PHARM · sacs pharmacie du club' }),
           session && session.nom ? el('div', { text: 'Émis par : ' + session.nom }) : null),
         el('div', { class: 'bon-hex', role: 'img', 'aria-label': plur(unites, 'unité', 'unités') + ' à commander' }, el('b', { text: String(unites) }), el('span', { text: unites > 1 ? 'unités' : 'unité' }))),
       lignes.length

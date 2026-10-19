@@ -1,6 +1,6 @@
-/* Service worker — Sacs pharmacie VSF. Coque d'application en cache ; l'API Apps Script n'est jamais mise en cache. */
-const CACHE = 'sacs-vsf-v5';
-const COQUE = ['./', 'index.html', 'manifest.webmanifest', 'assets/vsf-logo.png', 'assets/vsf-logo-white.svg', 'assets/icon-512.png'];
+/* Service worker — VSF PHARM. Coque d'application en cache ; l'API Apps Script n'est jamais mise en cache. */
+const CACHE = 'vsf-pharm-v6';
+const COQUE = ['./', 'index.html', 'manifest.webmanifest', 'assets/vsf-logo.png', 'assets/vsf-logo-white.svg', 'assets/icon-512.png', 'assets/icon-192.png', 'assets/icon-maskable-512.png', 'assets/apple-touch-icon.png', 'assets/favicon-64.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => Promise.all(COQUE.map(u => c.add(u).catch(() => {})))).then(() => self.skipWaiting()));
